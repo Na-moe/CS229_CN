@@ -1,0 +1,51 @@
+\documentclass[openany, oneside]{book}
+\usepackage[fontset=none]{ctex}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsfonts, amsmath, amssymb, amsthm, mathtools}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage[bottom=1in]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{arrows, positioning}
+\usepackage[ruled,linesnumbered,noend]{algorithm2e}
+\usepackage[style=authoryear,maxbibnames=20,uniquename=false]{biblatex}
+\usepackage{fancyhdr}
+
+
+\setCJKmainfont[ItalicFont=FandolKai]{FandolSong}
+\setCJKsansfont{FandolHei}
+
+\pagestyle{myheadings}
+\markright{\thepage}
+
+\newtheorem{remark}{备注}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{claim}{断言}[section]
+\hypersetup{hidelinks}
+
+
+\title{CS229 课程讲义}
+\author{Andrew Ng (吴恩达) and Tengyu Ma (马腾宇)}
+\date{由 Namoe 翻译\\June 2025}
+
+\addbibresource{ref.bib}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\include{part1_supervised_learning/part1_supervised_learning}
+\include{part2_deep_learning/part2_deep_learning}
+\include{part3_generalization_and_regularization/part3_generalization_and_regularization}
+\include{part4_unsupervised_learning/part4_unsupervised_learning}
+\include{part5_reinforcement_learning_and_control/part5_reinforcement_learning_and_control}
+
+\renewcommand*{\bibfont}{\large}
+\setlength{\bibhang}{1em}
+\printbibliography
+
+\end{document}

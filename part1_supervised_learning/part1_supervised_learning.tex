@@ -1,0 +1,61 @@
+\part{监督学习}
+
+不妨先从监督学习的几个例子谈起。假设有一个记录了俄勒冈州波特兰市 47 套房屋的居住面积和价格的数据集：
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c}
+        居住面积 (平方英尺) & 价格 (1000\$) \\
+        \hline
+        2104 & 400 \\
+        1600 & 330 \\
+        2400 & 369 \\
+        1416 & 232 \\
+        3000 & 540 \\
+        $\vdots$ & $\vdots$
+    \end{tabular}
+    \label{tab:house_example}
+\end{table}
+
+将这些数据绘制出来：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/house_dataset_plot1.pdf}
+\end{figure}
+
+有了这些数据之后，该怎样根据波特兰其他房屋的居住面积来预测其价格呢？
+
+为了后续使用的方便，在这里做如下约定。约定用 $x^{(i)}$ 表示“输入”变量（示例中是居住面积），也称作输入\textbf{特征 (features)}；用 $y^{(i)}$ 表示要预测的“输出”或\textbf{目标 (target) }变量（价格）。一对 $(x^{(i)}, y^{(i)})$ 称为一个\textbf{训练样本 (training example)}，而用于学习的数据集——由 $n$ 个训练样本组成的列表 $\{(x^{(i)}, y^{(i)}); i = 1,...,n\}$——则称为\textbf{训练集 (training set)}。注意，此处的上标“$i$”仅表示训练集中的索引，而不表示指数运算。此外，用 $\mathcal{X}$ 表示输入的取值空间，$\mathcal{Y}$ 表示输出的取值空间。在本例中，有 $\mathcal{X} = \mathcal{Y} = \mathbb{R}$。
+
+监督学习问题可以更加形式化地表述为：给定一个训练集，目标是学习一个函数 $h: \mathcal{X} \mapsto \mathcal{Y}$，该函数能够对输入 $x$ 进行预测，使其输出 $h(x)$ 与“很好地”预测相应的真实值 $y$。出于历史原因，函数 $h$ 被称为 \textbf{假设 (hypothesis)}。整个过程如下图所示：
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2cm, auto]
+    \node [rounded corners=1mm, rectangle, align=center, draw] (training) {训练集};
+    \node [rounded corners=1mm, rectangle, align=center, draw, below of=training] (learning) {学习算法};
+    \node [rounded corners=1mm, rectangle, align=center, draw, below of=learning] (h) {$h$};
+    \node [left of=h, label={[align=center]below:\footnotesize (房屋居住面积)}] (x) {$x$};
+    \node [right of=h, label={[align=center]below:\footnotesize (房屋预测价格)}] (y) {预测值 $y$};
+
+    \path [->, draw] (training) -- (learning);
+    \path [->, draw] (learning) -- (h);
+    \path [->, draw] (x) -- (h);
+    \path [->, draw] (h) -- (y);
+\end{tikzpicture}
+\end{figure}
+
+当预测的目标变量是连续值时（例如预测房价），称这类学习问题为\textbf{回归 (regression)} 问题。当 $y$ 只能取有限个离散值时（例如根据居住面积预测住宅是房屋还是公寓），则称为\textbf{分类 (classification)} 问题。
+
+\input{part1_supervised_learning/chapter1_linear_regression}
+
+\input{part1_supervised_learning/chapter2_classification_and_logistic_regression}
+
+\input{part1_supervised_learning/chapter3_generalized_linear_models}
+
+\input{part1_supervised_learning/chapter4_generative_learning_algorithms}
+
+\input{part1_supervised_learning/chapter5_kernel_methods}
+
+\input{part1_supervised_learning/chapter6_support_vector_machines}
