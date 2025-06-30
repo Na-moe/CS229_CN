@@ -18,8 +18,14 @@
 \setCJKsansfont{FandolHei}
 \setCJKmonofont{FandolKai}
 
-\pagestyle{myheadings}
-\markright{\thepage}
+\pagestyle{fancy}
+
+\renewcommand{\headrulewidth}{0pt}
+
+\fancyhf{} 
+\fancyhead[L]{}
+\fancyhead[C]{}
+\fancyhead[R]{\thepage}
 
 \newtheorem{remark}{备注}[section]
 \newtheorem{theorem}{定理}[section]
@@ -38,7 +44,7 @@
 
 \title{CS229 课程讲义}
 \author{Andrew Ng (吴恩达) and Tengyu Ma (马腾宇)}
-\date{由 Namoe 翻译\\June 2025}
+\date{由 \href{https://github.com/Na-moe/CS229_CN}{Namoe} 翻译\\June 2025}
 
 \addbibresource{ref.bib}
 
@@ -46,7 +52,13 @@
 
 \maketitle
 
+\begingroup
+\fancyhead[L]{\textit{CS229 课程讲义}}
+\fancyhead[C]{}
+\fancyhead[R]{\thepage}
 \tableofcontents
+\clearpage
+\endgroup
 
 \include{part1_supervised_learning/part1_supervised_learning}
 \include{part2_deep_learning/part2_deep_learning}

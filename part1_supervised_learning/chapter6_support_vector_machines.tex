@@ -27,7 +27,7 @@
 
 还注意到，根据上面 $g$ 的定义，分类器将直接预测 1 或 -1（参见感知器算法），而无需先经过估计 $p(y=1)$ 的中间步骤（这是逻辑回归所做的）。
 
-\section{函数间隔和几何间隔 (选读)}\label{sec:6.3}
+\section{函数间隔与几何间隔 (选读)}\label{sec:6.3}
 
 现在将函数间隔和几何间隔的概念形式化。给定一个训练样本 $(x^{(i)}, y^{(i)})$，定义 $(w,b)$ 相对于训练样本的\textbf{函数间隔 (functional margin)}为
 \[
@@ -403,9 +403,9 @@ SMO 算法高效的关键原因在于 $\alpha_i, \alpha_j$ 的更新可以非常
 将 $\alpha_3, \dots, \alpha_n$ 视为常数，您应该能够验证这是关于 $\alpha_2$ 的二次函数。也就是说，这也可以表示为 $a\alpha_2^2 + b\alpha_2 + c$ 的形式，其中 $a, b, c$ 是适当的常数。如果忽略“盒子”约束 \eqref{eq:6.20}（或等价地，忽略 $L \le \alpha_2 \le H$），那么我们可以通过将其导数设为零并求解来轻松最大化此二次函数。我们将令 $\alpha_2^{\text{new,unclipped}}$ 表示由此产生的 $\alpha_2$ 值。您还应该能够说服自己，如果改为最大化关于 $\alpha_2$ 的 $W$，但受盒子约束限制，那么可以通过简单地取 $\alpha_2^{\text{new,unclipped}}$ 并将其“剪裁”到$[L, H]$ 区间内，得到
 \[
     \alpha_2^{\text{new}} = \begin{cases}
-        H & \text{if } \alpha_2^{\text{new,unclipped}} > H \\
-        \alpha_2^{\text{new,unclipped}} & \text{if } L \le \alpha_2^{\text{new,unclipped}} \le H \\
-        L & \text{if } \alpha_2^{\text{new,unclipped}} < L
+        H & \text{若}\  \alpha_2^{\text{new,unclipped}} > H \\
+        \alpha_2^{\text{new,unclipped}} & \text{若}\  L \le \alpha_2^{\text{new,unclipped}} \le H \\
+        L & \text{若}\  \alpha_2^{\text{new,unclipped}} < L
     \end{cases}
 \]
 最后，找到 $\alpha_2^{\text{new}}$ 后，可以使用方程 \eqref{eq:6.22} 返回并找到 $\alpha_1^{\text{new}}$ 的最优值。

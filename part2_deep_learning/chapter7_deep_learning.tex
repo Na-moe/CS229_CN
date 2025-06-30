@@ -113,7 +113,7 @@
 
 定义一个参数化的函数 $\bar{h}_\theta(x)$，以 $x$ 为输入，由 $\theta$ 参数化，输出房屋价格 $y$。形式上，$\bar{h}_\theta: x \to y$。最简单的参数化也许是
 \begin{equation}
-    \bar{h}_\theta(x) = \max(wx + b, 0), \text{ 其中 } \theta = (w, b) \in \mathbb{R}^2
+    \bar{h}_\theta(x) = \max(wx + b, 0), \text{其中}\  \theta = (w, b) \in \mathbb{R}^2
     \label{eq:7.11}
 \end{equation}
 
@@ -123,7 +123,7 @@
 
 当输入 $x \in \mathbb{R}^d$ 具有多个维度时，具有单个神经元的神经网络可以写为
 \begin{equation}
-    \bar{h}_\theta(x) = \text{ReLU}(w^\top x + b), \text{ 其中 } w \in \mathbb{R}^d, b \in \mathbb{R}, \text{ 且 } \theta = (w, b)
+    \bar{h}_\theta(x) = \text{ReLU}(w^\top x + b), \text{其中}\  w \in \mathbb{R}^d, b \in \mathbb{R}, \text{且}\  \theta = (w, b)
     \label{eq:7.12}
 \end{equation}
 
@@ -191,20 +191,20 @@
 
 通过利用关于“家庭人数”、“步行便利程度”和“学校质量”如何由输入决定的重要先验知识/信念，构建了公式 \eqref{eq:7.13} 中的神经网络。隐含地假设知道家庭人数是一个重要的数量，并且它只能由“大小”和“卧室数量”确定。这样的先验知识可能不适用于其他应用。更灵活和通用的方法是为中间变量 $a_i$ 编写一个通用的参数化，作为所有 $x_1, \dots, x_4$ 的函数：
 \begin{align}
-    a_1 &= \text{ReLU}(w_1^\top x + b_1), \text{ 其中 } w_1 \in \mathbb{R}^4 \text{ 且 } b_1 \in \mathbb{R} \label{eq:7.14}\\
-    a_2 &= \text{ReLU}(w_2^\top x + b_2), \text{ 其中 } w_2 \in \mathbb{R}^4 \text{ 且 } b_2 \in \mathbb{R} \notag\\
-    a_3 &= \text{ReLU}(w_3^\top x + b_3), \text{ 其中 } w_3 \in \mathbb{R}^4 \text{ 且 } b_3 \in \mathbb{R} \notag
+    a_1 &= \text{ReLU}(w_1^\top x + b_1), \text{其中}\  w_1 \in \mathbb{R}^4 \text{且}\  b_1 \in \mathbb{R} \label{eq:7.14}\\
+    a_2 &= \text{ReLU}(w_2^\top x + b_2), \text{其中}\  w_2 \in \mathbb{R}^4 \text{且}\  b_2 \in \mathbb{R} \notag\\
+    a_3 &= \text{ReLU}(w_3^\top x + b_3), \text{其中}\  w_3 \in \mathbb{R}^4 \text{且}\  b_3 \in \mathbb{R} \notag
 \end{align}
 
 仍然使用上面定义的 $a_1, a_2, a_3$ 来定义 $\bar{h}_\theta(x)$。这样就得到了一个所谓的\textbf{全连接神经网络 (fully-connected neural network)}，因为所有中间变量 $a_i$ 都依赖于所有输入 $x_i$。
 
 为了通用性，具有 $m$ 个隐藏单元和 $d$ 维输入 $x \in \mathbb{R}^d$ 的两层全连接神经网络定义为
 \begin{align}
-    \forall j \in \{1, \dots, m\}, \quad z_j &= w_j^{[1]^\top} x + b_j^{[1]} \text{ 其中 } w_j^{[1]} \in \mathbb{R}^d, b_j^{[1]} \in \mathbb{R} 
+    \forall j \in \{1, \dots, m\}, \quad z_j &= w_j^{[1]^\top} x + b_j^{[1]} \ \text{其中}\  w_j^{[1]} \in \mathbb{R}^d, b_j^{[1]} \in \mathbb{R} 
     \label{eq:7.15}\\
     a_j &= \text{ReLU}(z_j), \notag \\
     a &= [a_1, \dots, a_m]^\top \in \mathbb{R}^m \notag \\
-    \bar{h}_\theta(x) &= w^{[2]^\top} a + b^{[2]} \text{ 其中 } w^{[2]} \in \mathbb{R}^m, b^{[2]} \in \mathbb{R}
+    \bar{h}_\theta(x) &= w^{[2]^\top} a + b^{[2]} \text{其中}\  w^{[2]} \in \mathbb{R}^m, b^{[2]} \in \mathbb{R}
     \label{eq:7.16}
 \end{align}
 
@@ -315,16 +315,16 @@
 
 激活函数在图 \ref{fig:7.3} 中绘制。Sigmoid 和 tanh 现在使用得越来越少，部分原因是它们在两侧都有界，并且当 $z$ 趋于正负无穷时，它们的梯度会消失 (而所有其他激活函数在输入趋于正无穷时仍然有梯度)。Softplus 可以看作是 ReLU 的平滑版本，它具有适当的二阶导数，不过在实践中也不常用。GELU 和 leaky ReLU 都是 ReLU 的变体，但即使输入为负，它们也具有非零梯度。GELU (或其变体) 用于 NLP 模型，例如 BERT 和 GPT (这将在第 14 章讨论)。
 
-\subsection*{为什么不对 $\sigma(z)$ 使用恒等函数？} 
+\subsection*{为什么不使用恒等函数作为 $\sigma(z)$ ？} 
 
 也即，为什么不使用 $\sigma(z) = z$？为了论证方便，假设 $b^{[1]}$ 和 $b^{[2]}$ 都为零。
 假设 $\sigma(z) = z$，那么对于两层神经网络，有
 \begin{align}
     \bar{h}_\theta(x) &= W^{[2]} a^{[1]} \label{eq:7.29} \\
     &= W^{[2]} \sigma(z^{[1]}) & \text{根据定义} \label{eq:7.30} \\
-    &= W^{[2]} z^{[1]} & \text{因为 } \sigma(z) = z \label{eq:7.31} \\
+    &= W^{[2]} z^{[1]} & \text{因为}\  \sigma(z) = z \label{eq:7.31} \\
     &= W^{[2]} W^{[1]} x & \text{根据公式 \eqref{eq:7.18}} \label{eq:7.32} \\
-    &= \tilde{W} x & \text{其中 } \tilde{W} = W^{[2]} W^{[1]} \label{eq:7.33}
+    &= \tilde{W} x & \text{其中}\  \tilde{W} = W^{[2]} W^{[1]} \label{eq:7.33}
 \end{align}
 注意 $W^{[2]} W^{[1]}$ 如何合并成 $\tilde{W}$。
 
@@ -537,7 +537,7 @@
 \vspace{0.5em}
 \noindent\textit{链式法则的关键解释：}可以将上面的公式（公式 \eqref{eq:7.53} 或 \eqref{eq:7.54}）看作是从 $\frac{\partial J}{\partial u}$ 计算 $\frac{\partial J}{\partial z}$ 的一种方法。考虑以下抽象问题：假设 $J$ 通过公式 \eqref{eq:7.52} 中定义的 $u$ 依赖于 $z$。然而，假设函数 $f$ 未知或函数 $f$ 很复杂，但已知 $\frac{\partial J}{\partial u}$ 的值。那么，公式 \eqref{eq:7.54} 提供了一种从 $\frac{\partial J}{\partial u}$ 计算 $\frac{\partial J}{\partial z}$ 的方法。
 \begin{equation}
-    \frac{\partial J}{\partial u} \quad \xRightarrow[\text{只需要关于 } g(\cdot) \text{ 和 } z \text{ 的信息}]{\text{利用链式法则和公式 \eqref{eq:7.54}} } \quad \frac{\partial J}{\partial z}. \label{eq:7.56}
+    \frac{\partial J}{\partial u} \quad \xRightarrow[\text{只需要关于}\  g(\cdot) \ \text{和}\  z \text{的信息}]{\text{利用链式法则和公式 \eqref{eq:7.54}} } \quad \frac{\partial J}{\partial z}. \label{eq:7.56}
 \end{equation}
 此外，此公式仅涉及关于 $g$ 的知识（更准确地说，$\frac{\partial g_j}{\partial z_i}$）。将反复利用这一点来处理 $g$ 是复杂网络 $f$ 的构建模块的情况。
 
@@ -585,7 +585,7 @@
 
 首先通过引用第 \ref{sec:7.4.1} 节关于链式法则的讨论来理解为什么 $\frac{\partial J}{\partial u^{[i-1]}}$ 可以从 $\frac{\partial J}{\partial u^{[i]}}$ 和 $u^{[i-1]}$ 有效计算。通过设置 $u = u^{[i]}$ 和 $z = u^{[i-1]}$，以及 $f(u) = M_k(M_{k-1}(\cdots M_{i+1}(u)))$，以及 $g(\cdot) = M_i(\cdot)$，来实例化讨论。注意，$f$ 非常复杂，但不需要关于 $f$ 的任何具体信息。那么，结论性公式 \eqref{eq:7.56} 对应于
 \begin{equation}
-    \frac{\partial J}{\partial u^{[i]}} \quad \xRightarrow[\textbf{只需要关于 } M_i(\cdot) \textbf{ 和 } u^{[i-1]} \textbf{的信息}]{\text{链式法则}} \frac{\partial J}{\partial u^{[i-1]}}. \label{eq:7.61}
+    \frac{\partial J}{\partial u^{[i]}} \quad \xRightarrow[\textbf{只需要关于}\  M_i(\cdot) \ \textbf{和}\  u^{[i-1]} \ \textbf{的信息}]{\text{链式法则}} \frac{\partial J}{\partial u^{[i-1]}}. \label{eq:7.61}
 \end{equation}
 更准确地说，根据公式 \eqref{eq:7.57}，可以写成
 \begin{align}
