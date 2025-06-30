@@ -36,6 +36,7 @@
 *.dvi
 *.ps
 *.pdf
+!figs/*.pdf
 
 # Editor and IDE files
 *.swp

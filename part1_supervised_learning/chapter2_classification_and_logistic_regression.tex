@@ -188,7 +188,7 @@ softmax 函数的输入，即这里的向量 $t$，通常被称为 \textit{logit
 \end{equation}
 其中 $\phi_i^{(j)} = \frac{\exp(\theta_i^\top x^{(j)})}{\sum_{s=1}^k \exp(\theta_s^\top x^{(j)})}$ 是模型预测样本 $x^{(j)}$ 属于类别 $i$ 的概率。利用上述梯度，可以使用（随机）梯度下降来最小化损失函数 $\ell(\theta)$。
 
-\section{最大化 $\ell(\theta)$ 的另一种算法}
+\section{最大化 \texorpdfstring{$\ell(\theta)$}{l(theta)} 的另一种算法}
 
 回到以 sigmoid 为 $g(z)$ 函数的逻辑回归，现在讨论一种不同的最大化 $\ell(\theta)$ 的算法。
 
