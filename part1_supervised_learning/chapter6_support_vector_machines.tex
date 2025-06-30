@@ -403,9 +403,9 @@ SMO 算法高效的关键原因在于 $\alpha_i, \alpha_j$ 的更新可以非常
 将 $\alpha_3, \dots, \alpha_n$ 视为常数，您应该能够验证这是关于 $\alpha_2$ 的二次函数。也就是说，这也可以表示为 $a\alpha_2^2 + b\alpha_2 + c$ 的形式，其中 $a, b, c$ 是适当的常数。如果忽略“盒子”约束 \eqref{eq:6.20}（或等价地，忽略 $L \le \alpha_2 \le H$），那么我们可以通过将其导数设为零并求解来轻松最大化此二次函数。我们将令 $\alpha_2^{\text{new,unclipped}}$ 表示由此产生的 $\alpha_2$ 值。您还应该能够说服自己，如果改为最大化关于 $\alpha_2$ 的 $W$，但受盒子约束限制，那么可以通过简单地取 $\alpha_2^{\text{new,unclipped}}$ 并将其“剪裁”到$[L, H]$ 区间内，得到
 \[
     \alpha_2^{\text{new}} = \begin{cases}
-        H & \text{if } \alpha_2^{\text{new,unclipped}} > H \\
-        \alpha_2^{\text{new,unclipped}} & \text{if } L \le \alpha_2^{\text{new,unclipped}} \le H \\
-        L & \text{if } \alpha_2^{\text{new,unclipped}} < L
+        H & \text{若}\  \alpha_2^{\text{new,unclipped}} > H \\
+        \alpha_2^{\text{new,unclipped}} & \text{若}\  L \le \alpha_2^{\text{new,unclipped}} \le H \\
+        L & \text{若}\  \alpha_2^{\text{new,unclipped}} < L
     \end{cases}
 \]
 最后，找到 $\alpha_2^{\text{new}}$ 后，可以使用方程 \eqref{eq:6.22} 返回并找到 $\alpha_1^{\text{new}}$ 的最优值。

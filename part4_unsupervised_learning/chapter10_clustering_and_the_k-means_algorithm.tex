@@ -7,17 +7,18 @@ $k$-means 聚类算法如下：
 \begin{enumerate}
     \item 随机初始化\textbf{簇中心 (cluster centroids)} $\mu_1, \mu_2, \dots, \mu_k \in \mathbb{R}^d$。
     \item 重复直到收敛：\{
-    \begin{itemize}
-        \item[] 对于每个 $i$，设置
-        \[
-            c^{(i)} := \arg \min_j \|x^{(i)} - \mu_j\|^2.
-        \]
-        \item[] 对于每个 $j$，设置
-        \[
-            \mu_j := \frac{\sum_{i=1}^n {1}\{c^{(i)} = j\} x^{(i)}}{\sum_{i=1}^n {1}\{c^{(i)} = j\}}.
-        \]
-    \end{itemize}
-    \noindent\quad\}
+        \begin{itemize}
+            \item[] 对于每个 $i$，设置
+            \[
+                c^{(i)} := \arg \min_j \|x^{(i)} - \mu_j\|^2.
+            \]
+            \item[] 对于每个 $j$，设置
+            \[
+                \mu_j := \frac{\sum_{i=1}^n {1}\{c^{(i)} = j\} x^{(i)}}{\sum_{i=1}^n {1}\{c^{(i)} = j\}}.
+            \]
+        \end{itemize}
+
+    \}
 \end{enumerate}
 
 在上述算法中，$k$（算法的一个参数）是我们想要找到的簇的数量；而簇中心 $\mu_j$ 代表我们对簇中心位置的当前猜测。为了初始化簇中心（在上述算法的步骤 1 中），我们可以随机选择 $k$ 个训练样本，并将簇中心设置为这些 $k$ 个样本的值。（也可以采用其他初始化方法。）
@@ -32,7 +33,6 @@ $k$-means 聚类算法如下：
 \end{figure}
 
 $k$-means 算法是否保证收敛？是的，在某种意义上。特别地，定义\textbf{失真函数 (distortion function)} 为：
-
 \[
     J(c, \mu) = \sum_{i=1}^n \|x^{(i)} - \mu_{c^{(i)}} \|^2
 \]

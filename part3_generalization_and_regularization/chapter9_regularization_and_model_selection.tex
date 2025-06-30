@@ -5,7 +5,6 @@
 回顾第 \ref{sec:8.1} 节中讨论的，过拟合通常是由于使用了过于复杂的模型导致的，我们需要选择适当的模型复杂度以达到最优的偏差-方差权衡。当模型复杂度用参数数量衡量时，我们可以改变模型的规模（例如，神经网络的宽度）。然而，衡量模型复杂度的正确且有信息量的方式可以是参数的函数（例如，参数的 $\ell_2$ 范数），这可能不一定取决于参数的数量。在这种情况下，我们将使用正则化，这是一种重要的机器学习技术，用于控制模型复杂度并防止过拟合。
 
 正则化通常涉及在训练损失/代价函数中添加一个附加项，称为正则项，这里用 $R(\theta)$ 表示：
-
 \begin{equation}
     J_\lambda(\theta) = J(\theta) + \lambda R(\theta)
     \label{eq:9.1}
@@ -15,7 +14,6 @@
 正则项 $R(\theta)$ 通常被选择为衡量模型 $\theta$ 复杂度的某种度量。因此，在使用正则化损失时，我们的目标是找到一个既能很好地拟合数据（即具有小的损失 $J(\theta)$）又具有小的模型复杂度（即小的 $R(\theta)$）的模型。这两个目标之间的平衡由正则化参数 $\lambda$ 控制。当 $\lambda = 0$ 时，正则化损失等同于原始损失。当 $\lambda$ 是一个足够小的正数时，最小化正则化损失也可以有效地最小化原始损失，同时利用正则项来区分那些原始损失相同的解。当正则项非常大时，原始损失不再有效（并且模型很可能具有很大的偏差）。
 
 最常用的正则化可能是 $\ell_2$ 正则化，其中 $R(\theta) = \frac{1}{2}\|\theta\|_2^2$。它鼓励优化器找到一个 $\ell_2$ 范数较小的模型。在深度学习中，这通常被称为\textbf{权重衰减 (weight decay)}，因为在正则化损失上进行学习率为 $\eta$ 的梯度下降，等价于将 $\theta$ 乘以一个标量因子 $1 - \eta\lambda$ 收缩/衰减后，使用标准梯度：
-
 \begin{align}
     \theta &\leftarrow \theta - \eta \nabla J_\lambda(\theta) = \theta - \eta \lambda \theta - \eta \nabla J(\theta) \nonumber \\
     &= \underbrace{(1 - \eta \lambda)\theta}_{\text{权重衰减}} - \eta \nabla J(\theta)
@@ -112,7 +110,6 @@
 本节我们将讨论对抗过拟合的另一个工具。
 
 之前我们讨论了使用最大似然估计（MLE）进行参数拟合，并根据以下公式选择参数：
-
 \[
     \theta_{\text{MLE}} = \arg \max_\theta \prod_{i=1}^n p(y^{(i)} | x^{(i)}; \theta).
 \]
@@ -121,7 +118,6 @@
 
 解决参数估计问题的另一种方法是采用\textbf{贝叶斯 (Bayesian)} 的世界观，并将 $\theta$ 视为一个\textit{随机变量 (random
 variable)}，其值是未知的。在这种方法中，我们会指定一个\textbf{先验分布 (prior distribution)} $p(\theta)$，它表达了我们对参数的“先验观念”。给定一个训练集 $S = \{(x^{(i)}, y^{(i)})\}_{i=1}^n$，当被要求对一个新的 $x$ 值进行预测时，我们可以计算参数的后验分布
-
 \begin{align}
     p(\theta | S) &= \frac{p(S | \theta) p(\theta)}{p(S)} \notag \\
     &= \frac{(\prod_{i=1}^n p(y^{(i)} | x^{(i)}, \theta)) p(\theta)}{\int_\theta (\prod_{i=1}^n p(y^{(i)} | x^{(i)}, \theta)) p(\theta) d\theta} \label{eq:9.3}
@@ -129,13 +125,11 @@ variable)}，其值是未知的。在这种方法中，我们会指定一个\tex
 在上述公式 \eqref{eq:9.3} 中，$p(y^{(i)} | x^{(i)}, \theta)$ 可以来自所研究的学习问题所采用的任何模型。例如，如果使用贝叶斯逻辑回归，那么可能会选择 $p(y^{(i)}|x^{(i)}, \theta) = h_\theta(x^{(i)})^{y^{(i)}} (1-h_\theta(x^{(i)}))^{1-y^{(i)}}$，其中 $h_\theta(x^{(i)}) = 1/(1 + \exp(-\theta^T x^{(i)}))$。\footnote{因为现在 $\theta$ 被视为一个随机变量，所以将它作为条件是可以的，写作 $p(y|x, \theta)$ 而不是 $p(y|x; \theta)$。}
 
 当给定一个新的测试样本 $x$ 并要求对其进行预测时，可以使用关于 $\theta$ 的后验分布计算类别标签上的后验分布：
-
 \begin{equation}
     p(y|x, S) = \int_\theta p(y|x, \theta) p(\theta|S) d\theta
     \label{eq:9.4}
 \end{equation}
 在上述公式 \eqref{eq:9.4} 中，$p(\theta|S)$ 来自公式 \eqref{eq:9.3}。因此，例如，如果目标是预测给定 $x$ 时 $y$ 的期望值，那么有\footnote{如果 $y$ 是离散值，下面的积分将被求和代替。}
-
 \[    
     E[y|x, S] = \int_y y p(y|x, S) dy
 \]
@@ -143,7 +137,6 @@ variable)}，其值是未知的。在这种方法中，我们会指定一个\tex
 所概述的这个过程可以被认为是进行“完全贝叶斯”预测，其中模型的预测是通过对 $\theta$ 的后验分布 $p(\theta|S)$ 求平均来计算的。不幸的是，通常情况下计算这个后验分布的计算成本非常高。这是因为这需要对公式 \eqref{eq:9.3} 中的（通常是高维的）$\theta$ 进行积分，而这通常无法得到闭式解。
 
 因此，实践中将转而近似 $\theta$ 的后验分布。一种常见的近似方法是用一个单点估计来代替 $\theta$ 的后验分布（如公式 \eqref{eq:9.4} 中所示）。$\theta$ 的\textbf{最大后验 (maximum a posteriori, MAP)} 估计由下式给出：
-
 \begin{equation}
     \theta_{\text{MAP}} = \arg \max_\theta \prod_{i=1}^n p(y^{(i)} | x^{(i)}, \theta) p(\theta).
     \label{eq:9.5}

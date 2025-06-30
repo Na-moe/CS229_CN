@@ -105,10 +105,10 @@
     \item 抽取一个训练数据集 $S = \{x^{(i)}, y^{(i)}\}_{i=1}^n$，其中 $y^{(i)} = h^*(x^{(i)}) + \xi^{(i)}$ 且 $\xi^{(i)} \in N(0, \sigma^2)$。
     \item 在数据集 $S$ 上训练一个模型，记为 $\hat{h}_S$。
     \item 取一个测试样本 $(x, y)$，使得 $y = h^*(x) + \xi$ 且 $\xi \sim N(0, \sigma^2)$，并测量测试误差的期望（在随机抽取的训练集 $S$ 和随机的 $\xi$ 上进行平均）\footnote{为简单起见，这里测试输入 $x$ 被视为固定，但在对 $x$ 进行平均时，同样的思想仍然成立。}\footnote{期望符号下的下标是为了强调在期望运算中被视为随机的变量。}。
+    \begin{equation}
+        \text{MSE}(x) = \mathbb{E}_{S, \xi}[(y - \hat{h}_S(x))^2] \label{eq:8.2}
+    \end{equation}
 \end{itemize}
-\begin{equation}
-    \text{MSE}(x) = \mathbb{E}_{S, \xi}[(y - \hat{h}_S(x))^2] \label{eq:8.2}
-\end{equation}
 
 我们将把 MSE 分解为偏差项和方差项。我们从一个简单的数学工具开始，该工具将在下面使用两次。
 
@@ -128,7 +128,6 @@
 然后，我们定义 $h_{\text{avg}}(x) = \mathbb{E}_S[\hat{h}_S(x)]$ 为“平均模型”——通过抽取无限多个数据集，并在其上进行训练，然后对它们在 $x$ 上的预测进行平均而获得的模型。注意，$h_{\text{avg}}$ 是一个用于分析目的的假设模型，它在现实中无法获得（因为我们无法拥有无限多个数据集）。结果表明，对于许多情况，$h_{\text{avg}}$（近似）等于在具有无限样本的单个数据集上训练得到的模型。因此，我们也可以直观地解释 $h_{\text{avg}}$，这与我们在上一小节中对偏差的直观定义一致。
 
 我们可以通过令 $c = h^*(x) - h_{\text{avg}}(x)$（这是一个不依赖于 $S$ 选择的常数）和 $A = h_{\text{avg}}(x) - \hat{h}_S(x)$ 来进一步分解 $\text{MSE}(x)$，这符合断言 \ref{claim:8.1.1} 的推论：
-
 \begin{align}
     \text{MSE}(x) &= \sigma^2 + \mathbb{E}[(h^*(x) - \hat{h}_S(x))^2] \label{eq:8.5} \\
     &= \sigma^2 + \mathbb{E}[(h^*(x) - h_{\text{avg}}(x) + h_{\text{avg}}(x) - \hat{h}S(x))^2] \label{eq:8.6} \\
@@ -280,7 +279,6 @@
 上述界的关键性质是，这个性能保证所需的训练样本数量与假设类 $\mathcal{H}$ 中假设的数量 $k$ 成\textit{对数 (logarithmic)} 关系。这一点在后面会很重要。
 
 类似地，我们也可以固定 $n$ 和 $\delta$，解出 $\gamma$，并证明对于所有 $h \in \mathcal{H}$，我们以 $1 - \delta$ 的概率有
-
 \[
     |\hat{\varepsilon}(h) - \varepsilon(h)| \leq \sqrt{\frac{1}{2n} \log \frac{2k}{\delta}}.
 \]
@@ -288,7 +286,6 @@
 现在，假设一致收敛成立，即对于所有 $h \in \mathcal{H}$， $|\varepsilon(h) - \hat{\varepsilon}(h)| \leq \gamma$。关于我们的学习算法选择的 $\hat{h} = \arg \min_{h \in \mathcal{H}} \hat{\varepsilon}(h)$ 的泛化误差，我们可以证明什么？
 
 定义 $h^* = \arg \min_{h \in \mathcal{H}} \varepsilon(h)$ 为 $\mathcal{H}$ 中最好的假设。注意，$h^*$ 是给定我们正在使用 $\mathcal{H}$ 的情况下，我们可能做到的最好的结果，因此将我们的性能与 $h^*$ 的性能进行比较是有意义的。我们有：
-
 \begin{align*}
     \varepsilon(\hat{h}) 
     &\leq \hat{\varepsilon}(\hat{h}) + \gamma \\

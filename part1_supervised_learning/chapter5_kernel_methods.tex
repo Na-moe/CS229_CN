@@ -53,7 +53,7 @@
 \begin{align} 
     \theta &:= \theta + \alpha \sum_{i=1}^n (y^{(i)} - \theta^T \phi(x^{(i)})) \phi(x^{(i)}) \notag\\ 
     &= \sum_{i=1}^n \beta_i \phi(x^{(i)}) + \alpha \sum_{i=1}^n (y^{(i)} - \theta^T \phi(x^{(i)})) \phi(x^{(i)}) \notag\\ 
-    &= \sum_{i=1}^n \underbrace{(\beta_i + \alpha (y^{(i)} - \theta^T \phi(x^{(i)})))}_{\text{新的 } \beta_i} \phi(x^{(i)}). 
+    &= \sum_{i=1}^n \underbrace{(\beta_i + \alpha (y^{(i)} - \theta^T \phi(x^{(i)})))}_{\text{新的}\  \beta_i} \phi(x^{(i)}). 
 \end{align}
 可以意识到，一般策略是通过一组系数 $\beta_1, \dots, \beta_n$ 隐式表示 $p$ 维向量 $\theta$。为了做到这一点，推导系数 $\beta_i$ 的更新规则。使用上面的方程，可以看到新的 $\beta_i$ 依赖于旧的 $\beta_i$
 \begin{equation}
@@ -106,7 +106,7 @@
 
 \section{核的性质}
 
-在上一小节中，从一个显式定义的特征映射 $\phi$ 开始，它导出了核函数 $K(x, z) \triangleq \langle \phi(x), \phi(z) \rangle$。然后，看到核函数是如此本质，只要核函数被定义，整个训练算法就可以完全用核方法的语言编写，而无需引用特征映射 $\phi$，因此对于测试示例 $x$ 的预测（方程 \eqref{eq:kernel_essence}）也是如此。
+在上一小节中，从一个显式定义的特征映射 $\phi$ 开始，导出了核函数 $K(x, z) \triangleq \langle \phi(x), \phi(z) \rangle$。然后，看到核函数是如此本质，只要核函数被定义，整个训练算法就可以完全用核方法的语言编写，而无需引用特征映射 $\phi$，因此对于测试示例 $x$ 的预测（方程 \eqref{eq:kernel_essence}）也是如此。
 
 因此，可以尝试定义其他核函数 $K(\cdot, \cdot)$ 并运行算法 \eqref{eq:kernel_algo}。请注意，算法 \eqref{eq:kernel_algo} 不需要显式访问特征映射 $\phi$，因此只需要确保特征映射 $\phi$ 的存在，但不一定需要能够显式写下 $\phi$。
 
@@ -181,7 +181,7 @@
 
 现在假设 $K$ 确实是一个有效的核，对应于某个特征映射 $\phi$，首先看看它满足哪些性质。考虑一个包含 $n$ 个点（不一定是训练集）的有限集合 $\{x^{(1)}, \dots, x^{(n)}\}$，并定义一个 $n \times n$ 的方阵 $K$，其 $(i, j)$ 项由 $K_{ij} = K(x^{(i)}, x^{(j)})$ 给出。这个矩阵称为\textbf{核矩阵 (kernel matrix)}。请注意，我们为了方便使用了 $K$ 来表示核函数 $K(x, z)$ 和核矩阵 $K$，因为它们之间有明显的密切关系。
 
-现在，如果 $K$ 是一个有效的核，那么 $K_{ij} = K(x^{(i)}, x^{(j)}) = \phi(x^{(i)})^T \phi(x^{(j)}) = \phi(x^{(j)})^T \phi(x^{(i)}) = K(x^{(j)}, x^{(i)}) = K_{ji}$，因此 $K$ 必须是对称的。此外，令 $\phi_k(x)$ 表示向量 $\phi(x)$ 的第 $k$ 个坐标，对于任意向量 $z$，有
+如果 $K$ 是一个有效的核，那么有 $K_{ij} = K(x^{(i)}, x^{(j)}) = \phi(x^{(i)})^T \phi(x^{(j)}) = \phi(x^{(j)})^T \phi(x^{(i)}) = K(x^{(j)}, x^{(i)}) = K_{ji}$，因此 $K$ 必须是对称的。此外，令 $\phi_k(x)$ 表示向量 $\phi(x)$ 的第 $k$ 个坐标，对于任意向量 $z$，有
 \begin{align*} 
     z^T K z &= \sum_i \sum_j z_i K_{ij} z_j \\ 
     &= \sum_i \sum_j z_i \phi(x^{(i)})^T \phi(x^{(j)}) z_j \\ 
