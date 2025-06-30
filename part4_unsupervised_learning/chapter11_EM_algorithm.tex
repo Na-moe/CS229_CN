@@ -136,7 +136,7 @@ EM 算法也让人联想到 K-means 聚类算法，不同之处在于 K-means �
 \[
     \sum_z Q(z) \left[ \frac{p(x, z; \theta)}{Q(z)} \right]
 \]
-是 $[p(x, z; \theta)/Q(z)]$ 关于从分布 $Q$ 抽取的 $z$ 的期望。\footnote{注意到，当 $p(x, z; \theta) \neq 0$ 时，表达式 $\frac{p(x, z; \theta)}{Q(z)}$ 只有在 $Q(z) \neq 0$ 时才有意义。在此，隐含地假设只考虑满足这一性质的 $Q$。}根据 Jensen 不等式，有
+是 $[p(x, z; \theta)/Q(z)]$ 关于从分布 $Q$ 抽取的 $z$ 的期望。\footnote{注意到，当 $p(x, z; \theta) \neq 0$ 时，表达式 $\frac{p(x, z; \theta)}{Q(z)}$ 只有在 $Q(z) \neq 0$ 时才有意义。在此，隐含地假设只考虑满足这一性质的 $Q$。} 根据 Jensen 不等式，有
 \[
     f\left( \mathbb{E}_{z \sim Q}\left[ \frac{p(x, z; \theta)}{Q(z)} \right] \right) \geq \mathbb{E}_{z \sim Q}\left[ f\left( \frac{p(x, z; \theta)}{Q(z)} \right) \right],
 \]
@@ -349,7 +349,7 @@ ELBO($\cdot$) 的另一种形式是（请自行验证）
 Q_i = \mathcal{N}(q(x^{(i)}; \phi), \text{diag}(v(x^{(i)}; \psi))^2) \label{eq:11.21}
 \end{equation}
 
-这里 $\text{diag}(w)$ 表示一个 $k \times k$ 矩阵，其对角线上的元素是 $w \in \mathbb{R}^k$ 的分量，非对角线元素为零。换句话说，分布 $Q_i$ 被假定为具有独立坐标的高斯分布，其均值和标准差由 $q$ 和 $v$ 控制。在变分自编码器中，$q$ 和 $v$ 通常被选为神经网络。\footnote{q 和 $v$ 也可以共享参数。讲义在这里不想涉及过多细节。}在最近的深度学习文献中，$q, v$ 通常被称为\textbf{编码器 (encoder)}（意为将数据编码为隐变量），而 $g(z; \theta)$ 通常被称为\textbf{解码器 (decoder)}。
+这里 $\text{diag}(w)$ 表示一个 $k \times k$ 矩阵，其对角线上的元素是 $w \in \mathbb{R}^k$ 的分量，非对角线元素为零。换句话说，分布 $Q_i$ 被假定为具有独立坐标的高斯分布，其均值和标准差由 $q$ 和 $v$ 控制。在变分自编码器中，$q$ 和 $v$ 通常被选为神经网络。\footnote{q 和 $v$ 也可以共享参数。讲义在这里不想涉及过多细节。} 在最近的深度学习文献中，$q, v$ 通常被称为\textbf{编码器 (encoder)}（意为将数据编码为隐变量），而 $g(z; \theta)$ 通常被称为\textbf{解码器 (decoder)}。
 
 值得注意的是，在许多情况下，这种形式的 $Q_i$ 与真实的后验分布相去甚远。不过，为了优化的可行性，还是做了这些近似。事实上，$Q_i$ 的形式需要满足其他要求（有时候 \eqref{eq:11.21} 也能满足这些要求）。
 
@@ -398,7 +398,7 @@ Q_i = \mathcal{N}(q(x^{(i)}; \phi), \text{diag}(v(x^{(i)}; \psi))^2) \label{eq:1
     &= \nabla_\phi \mathbb{E}_{\xi^{(i)} \sim \mathcal{N}(0, I_{k \times k})} \left[ \log \frac{p(x^{(i)}, q(x^{(i)}; \phi) + v(x^{(i)}; \psi) \odot \xi^{(i)}; \theta)}{Q_i(q(x^{(i)}; \phi) + v(x^{(i)}; \psi) \odot \xi^{(i)})} \right] \\
     &= \mathbb{E}_{\xi^{(i)} \sim \mathcal{N}(0, I_{k \times k})} \left[ \nabla_\phi \log \frac{p(x^{(i)}, q(x^{(i)}; \phi) + v(x^{(i)}; \psi) \odot \xi^{(i)}; \theta)}{Q_i(q(x^{(i)}; \phi) + v(x^{(i)}; \psi) \odot \xi^{(i)})} \right]
 \end{align*}
-现在可以采样多个 $\xi^{(i)}$ 来估计上式右侧的期望。\footnote{在实践中，为了最大化计算效率，有时仅使用一个样本来估计它。}同样，可以类似地估计关于 $\psi$ 的梯度，并利用这些梯度实现优化 ELBO 的梯度上升算法。
+现在可以采样多个 $\xi^{(i)}$ 来估计上式右侧的期望。\footnote{在实践中，为了最大化计算效率，有时仅使用一个样本来估计它。} 同样，可以类似地估计关于 $\psi$ 的梯度，并利用这些梯度实现优化 ELBO 的梯度上升算法。
 
 已知的高维分布中，具有解析可计算密度函数且可重参数化的并不多。对于可以替代高斯分布的其他几种选择，可以参考 \cite{kingma2013auto}。
 

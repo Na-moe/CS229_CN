@@ -41,7 +41,7 @@
 \begin{equation}
     \phi(x) = \begin{bmatrix} &1& \\ &x_1& \\ &x_2& \\ &\vdots& \\ &x_1^2& \\ &x_1 x_2& \\ &x_1 x_3& \\ &\vdots& \\ &x_2 x_1& \\ &\vdots& \\ &x_1^3& \\ &x_1^2 x_2& \\ &\vdots& \\ &x_2 x_3 x_1& \\ &\vdots& \end{bmatrix}. \label{eq:5.5}
 \end{equation}
-特征 $\phi(x)$ 的维度大约是 $d^3$ 量级\footnote{此处，为简单起见，包含所有重复的单项式（因此，例如 $x_1 x_2 x_3$ 和 $x_2 x_3 x_1$ 都出现在 $\phi(x)$ 中）。因此，$\phi(x)$ 中共有 $1 + d + d^2 + d^3$ 个元素。}。对于计算来说，这是一个非常长的向量——当 $d = 1000$ 时，每次更新需要至少计算和存储一个 $1000^3 = 10^9$ 维向量，这比普通最小二乘更新规则 \eqref{eq:kernel_ols} 慢 $10^6$ 倍。
+特征 $\phi(x)$ 的维度大约是 $d^3$ 量级。\footnote{此处，为简单起见，包含所有重复的单项式（因此，例如 $x_1 x_2 x_3$ 和 $x_2 x_3 x_1$ 都出现在 $\phi(x)$ 中）。因此，$\phi(x)$ 中共有 $1 + d + d^2 + d^3$ 个元素。} 对于计算来说，这是一个非常长的向量——当 $d = 1000$ 时，每次更新需要至少计算和存储一个 $1000^3 = 10^9$ 维向量，这比普通最小二乘更新规则 \eqref{eq:kernel_ols} 慢 $10^6$ 倍。
 
 乍一看，每次更新 $d^3$ 的运行时长和内存使用似乎是不可避免的，因为向量 $\theta$ 本身的维度是 $p \approx d^3$，并且可能需要更新和存储 $\theta$ 的每一个元素。然而，将引入核技巧，通过它不需要显式存储 $\theta$，并且运行时长可以显著改善。
 
@@ -75,7 +75,7 @@
     因此，要计算 $\langle \phi(x), \phi(z) \rangle$，可以首先用 $O(d)$ 的时间计算 $\langle x, z \rangle$，然后进行一些常数次操作来计算 $1 + \langle x, z \rangle + \langle x, z \rangle^2 + \langle x, z \rangle^3$。
 \end{enumerate}
 
-正如将看到的，特征 $\phi(x), \phi(z)$ 之间的内积在这里至关重要。将与特征映射 $\phi$ 对应的\textbf{核 (Kernel)}定义为一个 $\mathcal{X} \times \mathcal{X} \to \mathbb{R}$ 的函数，满足\footnote{回想一下， $\mathcal{X}$ 是输入 $x$ 的取值空间。在当前示例中，$\mathcal{X} = \mathbb{R}^d$。}：
+正如将看到的，特征 $\phi(x), \phi(z)$ 之间的内积在这里至关重要。将与特征映射 $\phi$ 对应的\textbf{核 (Kernel)}定义为一个 $\mathcal{X} \times \mathcal{X} \to \mathbb{R}$ 的函数，满足：\footnote{回想一下， $\mathcal{X}$ 是输入 $x$ 的取值空间。在当前示例中，$\mathcal{X} = \mathbb{R}^d$。}
 \begin{equation}
     K(x, z) \triangleq \langle \phi(x), \phi(z) \rangle
 \end{equation}
@@ -197,7 +197,7 @@
 
 \subsection*{有效核的充分条件}
 
-更一般地，上面的条件不仅是必要的，而且也是 $K$ 成为有效核（也称为 Mercer 核）的充分条件。以下结果归功于 Mercer\footnote{许多文献以涉及 $L^2$ 函数的稍微更复杂的形式给出 Mercer 定理，但当输入属性取值为 $\mathbb{R}^d$ 时，这里给出的版本是等价的。}。
+更一般地，上面的条件不仅是必要的，而且也是 $K$ 成为有效核（也称为 Mercer 核）的充分条件。以下结果归功于 Mercer。\footnote{许多文献以涉及 $L^2$ 函数的稍微更复杂的形式给出 Mercer 定理，但当输入属性取值为 $\mathbb{R}^d$ 时，这里给出的版本是等价的。}
 
 \noindent\textbf{定理（Mercer）：} 设 $K: \mathbb{R}^d \times \mathbb{R}^d \mapsto \mathbb{R}$ 已知。则 $K$ 是一个有效核的充要条件是，对于任意有限集合 $\{x^{(1)}, \dots, x^{(n)}\}$ ($n < \infty$)，相应的核矩阵是对称半正定的。
 

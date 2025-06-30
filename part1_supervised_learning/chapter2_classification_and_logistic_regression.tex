@@ -162,7 +162,7 @@ softmax 函数的输入，即这里的向量 $t$，通常被称为 \textit{logit
     \ell(\theta) = \sum_{i=1}^n -\log\left(\frac{\exp(\theta_{y^{(i)}}^T x^{(i)})}{\sum_{j=1}^k \exp(\theta_j^T x^{(i)})}\right).
     \label{eq:multiclass_loss}
 \end{equation}
-定义交叉熵损失 $\ell_{\text{ce}}: \mathbb{R}^k \times \{1, \dots, k\} \to \mathbb{R}_{\ge 0}$ 是很方便的，它将上述复杂的方程模块化为\footnote{这里命名存在一些歧义。有些人将交叉熵损失定义为将概率向量（在本讲义中用 $\phi$ 表示）和标签 $y$ 映射到实数的函数，并将本讲义中的交叉熵损失称为 softmax-交叉熵损失。本讲义选择当前的命名约定是因为它与大多数现代深度学习库（如 PyTorch 和 Jax）的命名一致。}：
+定义交叉熵损失 $\ell_{\text{ce}}: \mathbb{R}^k \times \{1, \dots, k\} \to \mathbb{R}_{\ge 0}$ 是很方便的，它将上述复杂的方程模块化为：\footnote{这里命名存在一些歧义。有些人将交叉熵损失定义为将概率向量（在本讲义中用 $\phi$ 表示）和标签 $y$ 映射到实数的函数，并将本讲义中的交叉熵损失称为 softmax-交叉熵损失。本讲义选择当前的命名约定是因为它与大多数现代深度学习库（如 PyTorch 和 Jax）的命名一致。}
 \begin{equation}
     \ell_{\text{ce}}((t_1, \dots, t_k), y) = -\log \left( \frac{\exp(t_y)}{\sum_{j=1}^k \exp(t_j)} \right).
 \end{equation}
@@ -207,7 +207,7 @@ softmax 函数的输入，即这里的向量 $t$，通常被称为 \textit{logit
 
 \setcounter{footnote}{0}
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
-在最左边的图中，可以看到函数 $f$ 与直线 $y=0$。尝试找到一个 $\theta$ 使得 $f(\theta)=0$；实现这一点的 $\theta$ 值大约是 1.3。假设初始化的算法的 $\theta$ 值为 4.5。然后牛顿法拟合一条在 $\theta=4.5$ 处与 $f$ 相切的直线，并求解该直线等于 0 的点（中间图）。这给出了 $\theta$ 的下一个猜测值，大约是 2.6。最右边的图显示了再进行一次迭代的结果，更新后的 $\theta$ 大约是 1.6。再经过几次迭代后，将迅速接近 $\theta = 1.3$\footnote{译者注：由于不知道原书所用函数的解析形式，这里译者画的图与原图稍有偏差，$\theta$的猜测值也稍有变化。}。
+在最左边的图中，可以看到函数 $f$ 与直线 $y=0$。尝试找到一个 $\theta$ 使得 $f(\theta)=0$；实现这一点的 $\theta$ 值大约是 1.3。假设初始化的算法的 $\theta$ 值为 4.5。然后牛顿法拟合一条在 $\theta=4.5$ 处与 $f$ 相切的直线，并求解该直线等于 0 的点（中间图）。这给出了 $\theta$ 的下一个猜测值，大约是 2.6。最右边的图显示了再进行一次迭代的结果，更新后的 $\theta$ 大约是 1.6。再经过几次迭代后，将迅速接近 $\theta = 1.3$。\footnote{译者注：由于不知道原书所用函数的解析形式，这里译者画的图与原图稍有偏差，$\theta$的猜测值也稍有变化。}
 \setcounter{footnote}{1}
 \renewcommand{\thefootnote}{\arabic{footnote}}
 
