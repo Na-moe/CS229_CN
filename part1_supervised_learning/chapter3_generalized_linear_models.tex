@@ -1,5 +1,5 @@
 \chapter{广义线性模型}
-到目前为止，我们已经讨论了一个回归示例和一个分类示例。在回归示例中，有 $y|x; \theta \sim \mathcal{N}(\mu, \sigma^2)$，在分类示例中，有 $y|x; \theta \sim \text{Bernoulli}(\phi)$，其中 $\mu$ 和 $\phi$ 是 $x$ 和 $\theta$ 的函数。在本节中，将展示这两种方法都是更广泛的模型族——称为广义线性模型（GLMs）\footnote{本节材料受到 Michael I. Jordan 的 \textit{Learning in graphical models}（未出版的书稿）以及 McCullagh 和 Nelder 的 \textit{Generalized Linear Models (2nd ed.)} 的启发。}——的特例。我们还将展示广义线性模型族中的其他模型如何推导并应用于其他分类和回归问题。
+到目前为止，我们已经讨论了一个回归示例和一个分类示例。在回归示例中，有 $y|x; \theta \sim \mathcal{N}(\mu, \sigma^2)$，在分类示例中，有 $y|x; \theta \sim \text{Bernoulli}(\phi)$，其中 $\mu$ 和 $\phi$ 是 $x$ 和 $\theta$ 的函数。在本章中，将展示这两种方法都是更广泛的模型族——称为广义线性模型（GLMs）——的特例。\footnote{本章材料受到 Michael I. Jordan 的 \textit{Learning in graphical models}（未出版的书稿）以及 McCullagh 和 Nelder 的 \textit{Generalized Linear Models (2nd ed.)} 的启发。} 我们还将展示广义线性模型族中的其他模型如何推导并应用于其他分类和回归问题。
 
 \section{指数族}
 
@@ -33,7 +33,7 @@
 \]
 这表明伯努利分布可以通过选择适当的 $T, a, b$ 从而写成公式 \eqref{eq:exp_family} 的形式。
 
-接下来考虑高斯分布。回想一下，在线性回归推导中，$\sigma^2$ 的值对最终选择的 $\theta$ 和 $h_\theta(x)$ 没有影响。因此，可以在不改变任何内容的情况下选择任意的 $\sigma^2$ 值。为了简化下面的推导，令 $\sigma^2 = 1$。\footnote{如果将 $\sigma^2$ 作为一个变量，高斯分布也可以显示为指数族，其中 $\eta \in \mathbb{R}^2$ 现在是一个二维向量，它取决于 $\mu$ 和 $\sigma$。然而，出于广义线性模型的目的，$\sigma^2$ 参数也可以通过考虑指数族的一个更一般的定义来处理：$p(y; \eta, \tau) = b(a, \tau) \exp((\eta^T T(y) - a(\eta))/c(\tau))$。这里，$\tau$ 称为\textbf{散布参数 (dispersion parameter)}，对于 高斯分布，$c(\tau) = \sigma^2$；但考虑到上面的简化，这里不需要更一般的定义。}有：
+接下来考虑高斯分布。回想一下，在线性回归推导中，$\sigma^2$ 的值对最终选择的 $\theta$ 和 $h_\theta(x)$ 没有影响。因此，可以在不改变任何内容的情况下选择任意的 $\sigma^2$ 值。为了简化下面的推导，令 $\sigma^2 = 1$。\footnote{如果将 $\sigma^2$ 作为一个变量，高斯分布也可以显示为指数族，其中 $\eta \in \mathbb{R}^2$ 现在是一个二维向量，它取决于 $\mu$ 和 $\sigma$。然而，出于广义线性模型的目的，$\sigma^2$ 参数也可以通过考虑指数族的一个更一般的定义来处理：$p(y; \eta, \tau) = b(a, \tau) \exp((\eta^T T(y) - a(\eta))/c(\tau))$。这里，$\tau$ 称为\textbf{散布参数 (dispersion parameter)}，对于 高斯分布，$c(\tau) = \sigma^2$；但考虑到上面的简化，这里不需要更一般的定义。} 有：
 \[
 \begin{aligned}
     p(y; \mu) &= \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{1}{2}(y-\mu)^2\right) \\
@@ -95,4 +95,4 @@
 \]
 因此，这给出了形式为 $h_\theta(x) = 1/(1 + e^{-\theta^T x})$ 的假设函数。如果之前曾想知道如何得到逻辑函数 $1/(1 + e^{-z})$ 的形式，这就是一个答案：一旦假设给定 $x$ 的 $y$ 服从伯努利分布，它就作为广义线性模型和指数族分布定义的必然结果出现了。
 
-这里引入一些额外的术语，将自然参数映射到分布均值的函数 $g$（$g(\eta) = E[T(y); \eta]$），称为\textbf{典范响应函数 (canonical response1 function)}。其逆函数 $g^{-1}$ 称为\textbf{典范连接函数 (canonical link function)}。因此，高斯族分布的典范响应函数就是恒等函数；伯努利分布的典范响应函数是逻辑函数\footnote{许多文献使用 $g$ 表示连接函数，$g^{-1}$ 表示响应函数；但这里使用的符号继承自早期的机器学习文献，将与课程其余部分使用的符号更一致。}。
+这里引入一些额外的术语，将自然参数映射到分布均值的函数 $g$（$g(\eta) = E[T(y); \eta]$），称为\textbf{典范响应函数 (canonical response1 function)}。其逆函数 $g^{-1}$ 称为\textbf{典范连接函数 (canonical link function)}。因此，高斯族分布的典范响应函数就是恒等函数；伯努利分布的典范响应函数是逻辑函数。\footnote{许多文献使用 $g$ 表示连接函数，$g^{-1}$ 表示响应函数；但这里使用的符号继承自早期的机器学习文献，将与课程其余部分使用的符号更一致。}

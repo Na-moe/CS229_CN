@@ -1,5 +1,5 @@
-\documentclass[openany, oneside]{book}
-\usepackage[fontset=none]{ctex}
+\documentclass[openany, oneside, 12pt, a4paper]{book}
+\usepackage[fontset=none, heading=true]{ctex}
 \usepackage{graphicx} % Required for inserting images
 \usepackage{amsfonts, amsmath, amssymb, amsthm, mathtools}
 \usepackage{float}
@@ -18,6 +18,22 @@
 \setCJKsansfont{FandolHei}
 \setCJKmonofont{FandolKai}
 
+\ctexset{
+    part={
+        name={第 , 部分},
+        number={\chinese{part}}
+    },
+    chapter={
+        format+=\raggedright,
+        name={第 , 章},
+        number={\arabic{chapter}}
+    },
+    section={
+        format+=\raggedright,
+    }
+}
+
+\setlength{\headheight}{15pt}
 \pagestyle{fancy}
 
 \renewcommand{\headrulewidth}{0pt}
@@ -26,6 +42,8 @@
 \fancyhead[L]{}
 \fancyhead[C]{}
 \fancyhead[R]{\thepage}
+
+\theoremstyle{definition}
 
 \newtheorem{remark}{备注}[section]
 \newtheorem{theorem}{定理}[section]
@@ -38,6 +56,8 @@
 \newtheorem*{claim*}{断言}
 \newtheorem*{lemma*}{引理}
 \newtheorem*{corollary*}{推论}
+
+\DeclareMathOperator*{\minimize}{minimize}
 
 \hypersetup{hidelinks}
 
