@@ -95,7 +95,7 @@ EM 算法也让人联想到 K-means 聚类算法，不同之处在于 K-means �
 
 \section{广义 EM 算法}
 
-假设有一个估计问题，其包含一个由 $n$ 个独立样本组成的训练集 $\{x^{(1)}, \dots, x^{(n)}\}$。我们有一个隐变量模型 $p(x, z; \theta)$，其中 $z$ 是隐变量（为简单起见，假设其取有限个值）。$x$ 的密度可以通过对隐变量 $z$ 进行边缘化得到：
+假设有一个估计问题，其包含一个有 $n$ 个独立样本的训练集 $\{x^{(1)}, \dots, x^{(n)}\}$。我们有一个隐变量模型 $p(x, z; \theta)$，其中 $z$ 是隐变量（为简单起见，假设其取有限个值）。$x$ 的密度可以通过对隐变量 $z$ 进行边缘化得到：
 \begin{equation}
     p(x; \theta) = \sum_z p(x, z; \theta)
     \label{eq:11.1}
@@ -226,7 +226,7 @@ EM 算法也让人联想到 K-means 聚类算法，不同之处在于 K-means �
 \end{equation}
 然后通过最大化上述等式的右侧来获得参数 $\theta^{(t+1)}$。因此，
 \begin{align*}
-    \ell(\theta^{(t+1)}) &\geq \sum_{i=1}^n \text{ELBO}(x^{(i)}; Q_i^{(t)}, \theta^{(t+1)}) \quad (\text{因为不等式 \eqref{eq:11.11} 对所有 $Q$ 和 $\theta$ 成立}) \\
+    \ell(\theta^{(t+1)}) &\geq \sum_{i=1}^n \text{ELBO}(x^{(i)}; Q_i^{(t)}, \theta^{(t+1)}) \quad (\text{不等式 \eqref{eq:11.11} 对所有 $Q$ 和 $\theta$ 成立}) \\
     &\geq \sum_{i=1}^n \text{ELBO}(x^{(i)}; Q_i^{(t)}, \theta^{(t)}) \quad (\text{见下文}) \\
     &= \ell(\theta^{(t)}) \quad (\text{根据公式 \eqref{eq:11.13}})
 \end{align*}
@@ -359,7 +359,7 @@ Q_i = \mathcal{N}(q(x^{(i)}; \phi), \text{diag}(v(x^{(i)}; \psi))^2) \label{eq:1
     &= \sum_{i=1}^n \mathbb{E}_{z^{(i)} \sim Q_i} \left[ \log \frac{p(x^{(i)}, z^{(i)}; \theta)}{Q_i(z^{(i)})} \right], \label{eq:11.22}\\
     &\text{其中 } \  Q_i = \mathcal{N}(q(x^{(i)}; \phi), \text{diag}(v(x^{(i)}; \psi))^2). \nonumber
 \end{align}
-注意，为了评估期望中的 $Q_i(z^{(i)})$，需要能够对于 $Q_i$ \textbf{计算密度 (compute the density)}。为了估计期望 $\mathbb{E}_{z^{(i)} \sim Q_i}$，需要能够\textbf{采样于分布 (sample from distribution)} $Q_i$，以便用样本构建经验估计器。对于高斯分布 $Q_i = \mathcal{N}(q(x^{(i)}; \phi), \text{diag}(v(x^{(i)}; \psi))^2)$，这两项任务能高效完成。
+注意，评估期望中的 $Q_i(z^{(i)})$ 需要能对 $Q_i$ \textbf{计算密度 (compute the density)}。为了估计期望 $\mathbb{E}_{z^{(i)} \sim Q_i}$，需要能\textbf{采样于分布 (sample from distribution)} $Q_i$，以便用样本构建经验估计器。高斯分布 $Q_i = \mathcal{N}(q(x^{(i)}; \phi), \text{diag}(v(x^{(i)}; \psi))^2)$ 能使这两者都高效地进行。
 
 现在来优化 ELBO。结果表明，可以对 $\phi, \psi, \theta$ 进行梯度上升，而不是交替最大化。没有强烈的必要以更大的代价计算每个变量上的最大值。（对于第 \ref{sec:11.4} 节中的高斯混合模型，计算最大值是解析可行的且相对便宜，因此我们进行了交替最大化。）数学地，设 $\eta$ 为学习率，梯度上升步骤为
 

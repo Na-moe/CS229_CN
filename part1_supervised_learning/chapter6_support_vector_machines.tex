@@ -324,7 +324,7 @@
 
 \}
 
-因此，在该算法的最内层循环中，将固定除某个 $\alpha_i$ 之外的所有变量，并仅针对参数 $\alpha_i$ 重新优化 $W$。在该方法此处介绍的版本中，内层循环按 $\alpha_1, \alpha_2, \dots, \alpha_n, \alpha_1, \alpha_2, \dots$ 的顺序重新优化变量。（更复杂的版本可以选择其他顺序；例如，可以根据期望哪个变量能使 $W(\alpha)$ 增加最大来选择下一个要更新的变量。）
+因此，在该算法的最内层循环中，将固定除某个 $\alpha_i$ 之外的所有变量，并仅针对参数 $\alpha_i$ 重新优化 $W$。然后内层循环按 $\alpha_1, \alpha_2, \dots, \alpha_n, \alpha_1, \alpha_2, \dots$ 的顺序重新优化变量。（更复杂的版本可以选择其他顺序；例如，可以根据期望哪个变量能使 $W(\alpha)$ 增加最大来选择下一个要更新的变量。）
 
 当函数 $W$ 的形式恰好使得内层循环中的 “arg max” 可以高效执行时，坐标上升可以是一个相当高效的算法。这里是坐标上升算法的一个图例：
 
@@ -347,7 +347,7 @@
     &\sum_{i=1}^n \alpha_i y^{(i)} = 0. \label{eq:6.21}
 \end{align}
 
-假设我们有一组满足约束 (\eqref{eq:6.20}-\eqref{eq:6.21}) 的 $\alpha_i$。现在，假设我们固定 $\alpha_2, \dots, \alpha_n$，并进行坐标上升步骤，关于 $\alpha_1$重新优化目标函数。能取得任何进展吗？答案是否定的，因为约束 \eqref{eq:6.21} 确保
+假设我们有一组满足约束 (\eqref{eq:6.20}-\eqref{eq:6.21}) 的 $\alpha_i$。现在，假设固定 $\alpha_2, \dots, \alpha_n$，并进行坐标上升步骤，关于 $\alpha_1$重新优化目标函数。能取得任何进展吗？答案是否定的，因为约束 \eqref{eq:6.21} 确保
 \[
     \alpha_1 y^{(1)} = - \sum_{i=2}^n \alpha_i y^{(i)}.
 \]
@@ -375,7 +375,7 @@ $\quad\quad$\}
 
 SMO 算法高效的关键原因在于 $\alpha_i, \alpha_j$ 的更新可以非常高效地计算。现在简要概述推导高效更新的主要思路。
 
-假设当前有一组满足约束 (\eqref{eq:6.20}-\eqref{eq:6.21}) 的 $\alpha_i$，并且假设决定固定 $\alpha_3, \dots, \alpha_n$，并重新优化 $W(\alpha_1, \alpha_2, \dots, \alpha_n)$ 关于 $\alpha_1$ 和 $\alpha_2$（受约束限制）。根据 \eqref{eq:6.21}，我们要求
+假设当前有一组满足约束 (\eqref{eq:6.20}-\eqref{eq:6.21}) 的 $\alpha_i$，并且固定 $\alpha_3, \dots, \alpha_n$，然后重新优化 $W(\alpha_1, \alpha_2, \dots, \alpha_n)$ 关于 $\alpha_1$ 和 $\alpha_2$（受约束限制）。根据 \eqref{eq:6.21}，我们要求
 \[
     \alpha_1 y^{(1)} + \alpha_2 y^{(2)} = - \sum_{i=3}^n \alpha_i y^{(i)}.
 \]

@@ -170,7 +170,7 @@ softmax 函数的输入，即这里的向量 $t$，通常被称为 \textit{logit
 \begin{equation}
     \ell(\theta) = \sum_{i=1}^n \ell_{\text{ce}}((\theta_1^\top x^{(i)}, \dots, \theta_k^\top x^{(i)}), y^{(i)}).
 \end{equation}
-此外，交叉熵损失的梯度也很便于推导。令 $t = (t_1, \dots, t_k)$，并回顾 $\phi_i = \frac{\exp(t_i)}{\sum_{j=1}^k \exp(t_j)}$。可以推导出：
+此外，交叉熵损失的梯度也很便于推导。令 $t = (t_1, \dots, t_k)$，根据 $\phi_i = \frac{\exp(t_i)}{\sum_{j=1}^k \exp(t_j)}$。可以推导出：
 \begin{equation}
     \frac{\partial \ell_{\text{ce}}(t, y)}{\partial t_i} = \phi_i - {1}\{y=i\},
 \end{equation}
