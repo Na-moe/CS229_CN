@@ -1,0 +1,122 @@
+\DeclareNameAlias{sortname}{given-family}
+
+\DeclareDelimFormat{multinamedelim}{\addcomma\space}
+\DeclareDelimFormat{finalnamedelim}{\addcomma\space and\space}
+
+\DeclareFieldFormat{journaltitle}{\mkbibitalic{#1}}
+\DeclareFieldFormat*{volume}{#1}
+\DeclareFieldFormat*{number}{\mkbibparens{#1}}
+\DeclareFieldFormat{pages}{#1}
+\DeclareFieldFormat{year}{#1}
+\DeclareFieldFormat*{title}{#1}
+\DeclareFieldFormat{organization}{#1}
+
+
+\renewbibmacro*{begentry}{
+  \item}
+\renewbibmacro{finentry}{
+  \iflastentry\relax\else\addperiod\space\fi}
+\renewbibmacro*{finentry}{
+  \finentry}
+
+\newbibmacro*{volume+number+pages}{
+  \printfield{volume}\printfield{number}
+%   \printfield{number}
+  \setunit{\addcolon}
+  \printfield{pages}}
+
+\renewbibmacro{journal+issuetitle}{
+  \usebibmacro{journal}
+  \iffieldundef{series}
+    {}
+    {\newunit
+     \printfield{series}
+     \setunit{\addspace}}
+  \usebibmacro{issue}
+  \newunit}
+
+\renewbibmacro{publisher+location+date}{
+  \printtext{
+    \printfield{publisher}
+    \setunit{\addcomma\space}
+    \printfield{location}
+    \setunit{\addcomma\space}
+    \usebibmacro{date}}
+  \newunit}
+
+
+
+
+\DeclareBibliographyDriver{article}{
+  \usebibmacro{begentry}
+  \printnames{author}
+  \newunit\newblock
+  \printfield{title}
+  \newunit
+  \usebibmacro{journal}
+  \setunit{\addcomma\space}
+  \usebibmacro{volume+number+pages}
+  \setunit{\addcomma\space}
+  \printfield{year}
+  \usebibmacro{finentry}
+  \finentry}
+
+
+
+\renewbibmacro{in:}{
+  \printtext{\bibstring{in}}
+  \setunit{\addspace}
+  }
+
+\newbibmacro*{inpages}{
+    \iffieldundef{pages}{}{
+        \printtext{pages}
+        \setunit{\addspace}}
+    \printfield{pages}
+    \setunit{\addcomma\space}
+    }
+
+\DeclareBibliographyDriver{inproceedings}{
+  \usebibmacro{begentry}
+  \printnames{author}
+  \newunit\newblock
+  \printfield{title}
+  \iffieldundef{booktitle}{}{\newunit\usebibmacro{in:}}
+  \printfield{booktitle} 
+  \setunit{\addcomma\space}
+  \usebibmacro{inpages}
+  \printfield{year}
+  \usebibmacro{finentry}
+  \finentry}
+
+
+\newbibmacro*{title+volume}{
+    \printfield{title}
+    \setunit{\addcomma\space}
+    \printtext{volume}
+    \printfield{volume}
+}
+
+\DeclareBibliographyDriver{book}{
+    \usebibmacro{begentry}
+    \printnames{author}
+    \newunit\newblock
+    \usebibmacro{title+volume}
+    \newunit
+    \printfield{publisher}
+    \setunit{\addcomma\space}
+    \printfield{year}
+    \usebibmacro{finentry}
+    \finentry
+}
+
+\DeclareBibliographyDriver{misc}{
+    \usebibmacro{begentry}
+    \printnames{author}
+    \newunit\newblock
+    \printfield{title}
+    \newunit
+    \printfield{year}
+    \usebibmacro{finentry}
+    \finentry
+}
