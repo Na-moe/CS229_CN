@@ -1,1 +1,108 @@
 \chapter{策略梯度 (REINFORCE)}
+
+本章将介绍一种名为 REINFORCE 的无模型 (model-free) 算法，它不需要价值函数和 $Q$ 函数的概念。将 REINFORCE 用于有限时间范围的情况会更方便一点，因此假设：使用 $\tau = (s_0, a_0, \dots, s_{T-1}, a_{T-1}, s_T)$ 表示一条轨迹，其中 $T < \infty$ 是轨迹的长度。此外，REINFORCE 仅适用于学习\textbf{随机策略 (randomized policy)}。使用 $\pi_\theta(a|s)$ 表示策略 $\pi_\theta$ 在状态 $s$ 下输出动作 $a$ 的概率。其他符号将与之前保持一致。
+
+REINFORCE 的优势在于，只需假设可以从转移概率 $\{P_{sa}\}$ 中采样，并且可以评估状态 $s$ 和动作 $a$ 下的奖励函数 $R(s, a)$，而无需知道转移概率或奖励函数的解析形式。也不需要显式地学习转移概率或奖励函数。\footnote{本章使用奖励同时依赖于状态和动作的通用设置。}
+
+令 $s_0$ 从某个分布 $\mu$ 中采样。考虑优化策略 $\pi_\theta$ 关于参数 $\theta$ 的预期总回报，定义如下：
+\begin{equation} \label{eq:17.1}
+    \eta(\theta) \triangleq \mathrm{E} \left[ \sum_{t=0}^{T-1} \gamma^t R(s_t, a_t) \right]
+\end{equation}
+其中有 $s_t \sim P_{s_{t-1}a_{t-1}}$ 且 $a_t \sim \pi_\theta(\cdot|s_t)$。另请注意，如果忽略有限和无限时间范围之间的差异，则 $\eta(\theta) = \mathrm{E}_{s_0 \sim P} [V^{\pi_\theta}(s_0)]$。
+
+目标是使用梯度上升来最大化 $\eta(\theta)$。这里面临的主要挑战是在不知道奖励函数和转移概率形式的情况下计算（或估计）$\eta(\theta)$ 的梯度。
+
+令 $P_\theta(\tau)$ 表示由策略 $\pi_\theta$ 生成的 $\tau$ 的分布，且 $f(\tau) = \sum_{t=0}^{T-1} \gamma^t R(s_t, a_t)$。可以将 $\eta(\theta)$ 重写为
+\begin{equation} \label{eq:17.2}
+    \eta(\theta) = \mathrm{E}_{\tau \sim P_\theta} [f(\tau)]
+\end{equation}
+在变分自编码器设置中也面临类似情况，其中需要对期望下标中的变量求梯度（$P_\theta$ 分布依赖于 $\theta$）。在 VAE 中使用了重参数化技巧来解决这个问题。然而，该技巧不适用于此处，因为不知道如何计算函数 $f$ 的梯度。（计算梯度时，只能通过观测到的奖励的加权和来评估函数 $f$，但不知道奖励函数本身。）
+
+REINFORCE 算法使用另一种方法来估计 $\eta(\theta)$ 的梯度。从以下推导开始：
+\begin{align}
+    \nabla_\theta \mathrm{E}_{\tau \sim P_\theta} [f(\tau)] &= \nabla_\theta \int P_\theta(\tau) f(\tau) d\tau &\nonumber \\
+    &= \int \nabla_\theta (P_\theta(\tau) f(\tau)) d\tau &(\text{交换积分与梯度})& \nonumber \\
+    &= \int (\nabla_\theta P_\theta(\tau)) f(\tau) d\tau &(\text{因为}\ f \ \text{不依赖于}\ \theta) &\nonumber \\
+    &= \int P_\theta(\tau) (\nabla_\theta \log P_\theta(\tau)) f(\tau) d\tau \nonumber \\
+    && (\text{因为 } \nabla_\theta \log P_\theta(\tau) = \frac{\nabla_\theta P_\theta(\tau)}{P_\theta(\tau)}) &\nonumber \\
+    &= \mathrm{E}_{\tau \sim P_\theta} [(\nabla_\theta \log P_\theta(\tau)) f(\tau)] \label{eq:17.3}
+\end{align}
+现在，有了 $\nabla_\theta \mathrm{E}_{\tau \sim P_\theta} [f(\tau)]$ 的基于样本的估计。令 $\tau^{(1)}, \dots, \tau^{(n)}$ 为 $P_\theta$ 的 $n$ 个经验样本（通过运行 $n$ 次策略 $\pi_\theta$ 获得，每次运行 $T$ 步）。可以通过以下方式估计 $\eta(\theta)$ 的梯度：
+\begin{align}
+    \nabla_\theta \mathrm{E}_{\tau \sim P_\theta} [f(\tau)] &= \mathrm{E}_{\tau \sim P_\theta} [(\nabla_\theta \log P_\theta(\tau)) f(\tau)] \label{eq:17.4} \\
+    &\approx \frac{1}{n} \sum_{i=1}^n (\nabla_\theta \log P_\theta(\tau^{(i)})) f(\tau^{(i)}) \label{eq:17.5}
+\end{align}
+
+下一个问题是如何计算 $\log P_\theta(\tau)$。下面推导 $\log P_\theta(\tau)$ 的解析公式并计算其关于 $\theta$ 的梯度（使用自动微分）。根据 $\tau$ 的定义，有
+\begin{equation} \label{eq:17.6}
+    P_\theta(\tau) = \mu(s_0)\pi_\theta(a_0|s_0)P_{s_0a_0}(s_1)\pi_\theta(a_1|s_1)P_{s_1a_1}(s_2)\cdots P_{s_{T-1}a_{T-1}}(s_T)
+\end{equation}
+这里 $\mu$ 用于表示 $s_0$ 的分布密度。因此有
+\begin{align} 
+    \log P_\theta(\tau) &= \log \mu(s_0) + \log \pi_\theta(a_0|s_0) + \log P_{s_0a_0}(s_1) + \log \pi_\theta(a_1|s_1) \nonumber\\
+    &+ \log P_{s_1a_1}(s_2) + \dots + \log P_{s_{T-1}a_{T-1}}(s_T) \label{eq:17.7}
+\end{align}
+对 $\theta$ 求梯度，得到
+\[
+    \nabla_\theta \log P_\theta(\tau) = \nabla_\theta \log \pi_\theta(a_0|s_0) + \nabla_\theta \log \pi_\theta(a_1|s_1) + \dots + \nabla_\theta \log \pi_\theta(a_{T-1}|s_{T-1})
+\]
+请注意，许多项消失了，因为它们不依赖于 $\theta$，因此梯度为零。（这在某种程度上很重要——我们不知道如何评估像 $\log P_{s_0a_0}(s_1)$ 这样的项，因为无法得知转移概率，但幸运的是这些项的梯度为零！）
+
+将上述方程代入方程\eqref{eq:17.4}，得出
+\begin{align}
+    \nabla_\theta \eta(\theta) &= \nabla_\theta \mathrm{E}_{\tau \sim P_\theta} [f(\tau)] = \mathrm{E}_{\tau \sim P_\theta} \left[ \left( \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \right) \cdot f(\tau) \right] \nonumber \\
+    &\qquad= \mathrm{E}_{\tau \sim P_\theta} \left[ \left( \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \right) \cdot \left( \sum_{t=0}^{T-1} \gamma^t R(s_t, a_t) \right) \right] \label{eq:17.8}
+\end{align}
+通过经验样本轨迹可以估计上述方程的右侧，并且估计是无偏的。原始 REINFORCE 算法使用估计的梯度通过梯度上升迭代更新参数。
+
+\noindent\textbf{策略梯度 (policy gradient)} 即 \eqref{eq:17.8} 的解释。直观上，$\sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t)$ 这一项是 $\theta$ 的变化方向，这促使轨迹 $\tau$ 发生概率变大（或增加选择动作 $a_0, \dots, a_{t-1}$ 的概率），而 $f(\tau)$ 是该轨迹的总回报。因此，梯度上升直观上会提高所有轨迹的似然，但对每个 $\tau$（或对每组动作 $a_0, a_1, \dots, a_{t-1}$）有不同的强调或权重。如果 $\tau$ 的回报非常高（即 $f(\tau)$ 很大），则朝着能够增加轨迹 $\tau$ 的概率（或者增加选择 $a_0, \dots, a_{t-1}$ 的概率）的方向努力增加，如果 $\tau$ 的回报较低，则以较小的权重进行调整。
+
+从公式 \eqref{eq:17.3} 可以得出一个有趣的结论，即
+\begin{equation} \label{eq:17.9}
+    \mathrm{E}_{\tau \sim P_\theta} \left[ \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \right] = 0
+\end{equation}
+为了证明这一点，令 $f(\tau) = 1$（即，奖励始终是一个常数），那么 \eqref{eq:17.8} 的左侧为零，因为回报始终是固定的常数 $\sum_{t=0}^T \gamma^t$。因此 \eqref{eq:17.8} 的右侧也为零，所以 \eqref{eq:17.9} 成立。
+
+实际上，可以验证对于任何固定的 $t$ 和 $s_t$，$\mathrm{E}_{a_t \sim \pi_\theta(\cdot|s_t)} \nabla_\theta \log \pi_\theta(a_t|s_t) = 0$。\footnote{因为 $\mathrm{E}_{x \sim p_\theta} [\nabla_\theta \log p_\theta(x)] = 0$ 通常是成立的。} 这产生了两个推论。首先，可以简化公式\eqref{eq:17.8} 为
+\begin{align}
+    \nabla_\theta \eta(\theta) &= \mathrm{E}_{\tau \sim P_\theta} \left[ \left( \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \right) \cdot \left( \sum_{j=0}^{T-1} \gamma^j R(s_j, a_j) \right) \right] \nonumber \\
+    &= \mathrm{E}_{\tau \sim P_\theta} \left[ \left( \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \right) \cdot \left( \sum_{j \ge t}^{T-1} \gamma^j R(s_j, a_j) \right) \right] \label{eq:17.10}
+\end{align}
+其中第二个等号来源于
+\begin{align*}
+    \mathrm{E}&_{\tau \sim P_\theta} \left[ \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \left( \sum_{0 \le j < t} \gamma^j R(s_j, a_j) \right) \right] \\
+    &=\mathrm{E} \left[ \mathrm{E} \left[ \nabla_\theta \log \pi_\theta(a_t|s_t) | s_0, a_0, \dots, s_{t-1}, a_{t-1}, s_t \right] \cdot \left( \sum_{0 \le j < t} \gamma^j R(s_j, a_j) \right) \right]\\
+    &= 0 \qquad (\text{因为}\ \mathrm{E} [\nabla_\theta \log \pi_\theta(a_t|s_t) | s_0, a_0, \dots, s_{t-1}, a_{t-1}, s_t] = 0)
+\end{align*}
+注意，这里使用了全期望定律。上面第二行的外部期望是对 $s_0, a_0, \dots, s_{t-1}, a_{t-1}, s_t$ 的随机性求期望，而内部期望是对 $a_t$ 的随机性求期望（以 $s_0, a_0, \dots, s_{t-1}, a_{t-1}, s_t$ 为条件）。可以看出，这使得估计稍有简化。
+
+$\mathrm{E}_{a_t \sim \pi_\theta(\cdot|s_t)} \nabla_\theta \log \pi_\theta(a_t|s_t) = 0$ 的第二个推论是：对于任何仅依赖于 $s_t$ 的值 $B(s_t)$，有
+\begin{align*}
+    \mathrm{E}&_{\tau \sim P_\theta} \left[ \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot B(s_t) \right] \\
+    &= \mathrm{E} \left[ \mathrm{E} \left[ \nabla_\theta \log \pi_\theta(a_t|s_t) | s_0, a_0, \dots, s_{t-1}, a_{t-1}, s_t \right] B(s_t) \right]\\
+    &= 0 \qquad (\text{因为}\ \mathrm{E} [\nabla_\theta \log \pi_\theta(a_t|s_t) | s_0, a_0, \dots, s_{t-1}, a_{t-1}, s_t] = 0)
+\end{align*}
+这里再次使用了全期望定律。上面第二行的外部期望是对 $s_0, a_0, \dots, a_{t-1}, s_t$ 的随机性求期望，而内部期望是对 $a_t$ 的随机性求期望（以 $s_0, a_0, \dots, a_{t-1}, s_t$ 为条件）。根据方程 \eqref{eq:17.10} 和上述方程，有
+\begin{align}
+    \nabla_\theta \eta(\theta) &= \sum_{t=0}^{T-1} \mathrm{E}_{\tau \sim P_\theta} \left[ \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \left( \sum_{j \ge t}^{T-1} \gamma^j R(s_j, a_j) - \gamma^t B(s_t) \right) \right] \nonumber \\
+    &= \sum_{t=0}^{T-1} \mathrm{E}_{\tau \sim P_\theta} \left[ \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \gamma^t \left( \sum_{j \ge t}^{T-1} \gamma^{j-t} R(s_j, a_j) - B(s_t) \right) \right] \label{eq:17.11}
+\end{align}
+因此，通过选择不同的 $B(\cdot)$，将得到一个不同的 $\nabla_\theta \eta(\theta)$ 估计。引入一个合适的 $B(\cdot)$——这通常被称为\textbf{基线 (baseline)}——的好处是它有助于减少估计的方差。\footnote{作为一个启发式但具有说明性的例子，假设对于一个固定的 $t$，未来奖励 $\sum_{j \ge t}^{T-1} \gamma^{j-t} R(s_j, a_j)$ 以相等的概率随机取两个值 $1000 + 1$ 和 $1000 - 2$，并且 $\nabla_\theta \log \pi_\theta(a_t|s_t)$ 的对应值是向量 $z$ 和 $-z$。（注意，由于 $\mathrm{E}[\nabla_\theta \log \pi_\theta(a_t|s_t)] = 0$，如果 $\nabla_\theta \log \pi_\theta(a_t|s_t)$ 只能均匀地取两个值，那么这两个值必须是方向相反的两个向量。）在这种情况下，不减去基线时，估计可以取两个值 $(1000 + 1)z$ 和 $-(1000 - 2)z$；而减去基线 $1000$ 后，估计的两个值是 $z$ 和 $2z$。后者的估计比原始估计具有更低的方差。} 结果表明，一个接近最优的估计是预期的未来回报 $\mathrm{E} \left[ \sum_{j \ge t}^{T-1} \gamma^{j-t} R(s_j, a_j) | s_t \right]$，这与价值函数 $V^{\pi_\theta}(s_t)$ 几乎相同（忽略有限和无限时间范围之间的差异）。这里可以粗略地估计价值函数 $V^{\pi_\theta}(\cdot)$，因为其精确值不影响估计的均值，而只影响方差。将上面总结为算法 \ref{algo:7} 中所述的带基线的策略梯度算法。\footnote{需要注意的是，算法中梯度的估计与方程 \eqref{eq:17.11} 并不完全匹配。如果在方程 \eqref{eq:17.13} 的求和项中乘以 $\gamma^t$，那么它们将完全匹配。经验上，移除这些折扣因子效果很好，因为可以提供更大的更新。}
+
+\vspace{0.5em}
+\begin{algorithm}[H]
+    \SetAlgoNoLine
+    \label{algo:7}
+    \caption{带基线的策略梯度}
+    \For{$i=1,\cdots$}{
+        通过执行当前策略，收集一组轨迹。简记 $\sum_{j\ge t}^{T-1}\gamma^{j-t} R(s_j,a_j)$ 为 $R_{\ge t}$。\\
+        通过最小化下式，找到一个函数 $B$ 以拟合基线
+        \begin{equation}\label{eq:17.12}
+            \sum_\tau \sum_t (R_{\ge t} - B(s_t))^2
+        \end{equation}\\
+        根据梯度估计来更新策略参数 $\theta$：
+        \begin{equation}\label{eq:17.13}
+            \sum_\tau \sum_t \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot (R_{\ge t} - B(s_t))
+        \end{equation}
+    }
+\end{algorithm}
