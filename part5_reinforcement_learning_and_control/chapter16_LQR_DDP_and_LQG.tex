@@ -1,1 +1,430 @@
 \chapter{LQR, DDP 与 LQG}
+
+\section{有限时间范围的 MDP}\label{sec:16.1}
+
+第15章中定义了马尔可夫决策过程，并讨论了简化设置下的价值迭代/策略迭代。具体而言，引入了定义最优策略 $\pi^*$ 的最优价值函数 $V^*$ 的\textbf{最优贝尔曼方程 (optimal Bellman equation)}。
+\[
+    V^*(s) = R(s) + \max_{a \in A}\gamma \sum_{s' \in S} P_{sa}(s')V^*(s')
+\]
+
+回想一下，从最优价值函数中能恢复最优策略$\pi^*$，如下所示：
+\[
+    \pi^*(s) = \operatorname*{argmax}_{a \in A} \sum_{s' \in S} P_{sa}(s')V^*(s')
+\]
+
+在本章中，将采用更一般的设置：
+\begin{enumerate}
+    \item 为了同时适用于离散和连续的情况。因此，将使用
+    \begin{align*}
+        &\mathbb{E}_{s' \sim P_{sa}}[V^{\pi^*}(s')] \quad \text{而非} \\
+        &\sum_{s' \in S} P_{sa}(s')V^{\pi^*}
+    \end{align*}
+    这意味着将取下一状态价值函数的期望。在离散情况下，可以将期望改写为对所有状态的求和。在连续情况下，可以将期望改写为对所有状态的积分。符号 $s' \sim P_{sa}$ 表示 $s'$ 是从分布 $P_{sa}$ 中采样的。
+    \item  假设奖励同时取决于\textbf{状态和动作 (both states and actions)}。换句话说，$R: \mathcal{S} \times \mathcal{A} \to \mathbb{R}$。这意味着计算最优动作的先前机制变为
+    \[
+        \pi^*(s) = \underset{a \in \mathcal{A}}{\text{argmax}} \ R(s, a) + \gamma \mathbb{E}_{s' \sim P_{sa}} [V^{\pi^*}(s')]
+    \]
+    \item 不考虑无限时间范围的 MDP，而是假设有一个\textbf{有限时间范围的 MDP (finite horizon MDP)}，定义为一个元组
+    \[
+        (\mathcal{S}, \mathcal{A}, P_{sa}, T, R)
+    \]
+    其中 $T > 0$ 是\textbf{时间范围 (time horizon)}（例如 $T=100$）。在这种设置下，对回报的定义将略有不同：
+    \[
+        R(s_0, a_0) + R(s_1, a_1) + \cdots + R(s_T, a_T)
+    \]
+    而不是（无限时间范围情况下的）
+    \begin{align*}
+        & R(s_0, a_0) + \gamma R(s_1, a_1) + \gamma^2 R(s_2, a_2) + \cdots
+        & \sum_{t=0}^{\infty} R(s_t, a_t)\gamma^t
+    \end{align*}
+    \textit{折现因子 $\gamma$ 呢？(what happened to the discount factor $\gamma$?)} 请记住，引入 $\gamma$ （部分原因）是为了确保无限项求和是有限且良定义的。如果奖励以常数 $\bar{R}$ 为界，则回报是以下式为界的
+    \[
+        \left| \sum_{t=0}^{\infty} R(s_t)\gamma^t \right| \leq \bar{R} \sum_{t=0}^{\infty} \gamma^t
+    \]
+    发现这里是一个几何级数！在这里，由于回报是有限项求和，折现因子 $\gamma$ 不再是必需的。
+
+    在这种新设置中，情况表现得相当不同。首先，最优策略 $\pi^*$ 可能是非平稳的，这意味着\textbf{它随时间变化 (it changes over time)}。换句话说，现在有
+    \[
+        \pi^{(t)}: \mathcal{S} \to \mathcal{A}
+    \]
+    其中上标 $(t)$ 表示时间步 $t$ 的策略。遵循策略 $\pi^{(t)}$ 的有限时间范围 MDP 的动态过程如下：从某个状态 $s_0$ 开始，根据时间步 0 的策略 $\pi^{(0)}(s_0)$ 采取某个动作 $a_0 := \pi^{(0)}(s_0)$。MDP 根据 $P_{s_0 a_0}$ 转换到后继状态 $s_1$。然后根据时间步 1 的新策略 $\pi^{(1)}(s_1)$ 选择另一个动作 $a_1 := \pi^{(1)}(s_1)$，依此类推……
+
+    \textit{为什么最优策略在有限时间范围设置下会是非平稳的？(why does the optimal policy happen to be non-stationary in the finite-horizon setting?)} 直观地说，由于有有限数量的动作要执行，实际可能希望根据所处的环境位置以及剩余的时间来采取不同的策略。想象一个有 2 个目标的网格，奖励分别为 $+1$ 和 $+10$。一开始可能希望采取行动以得到 $+10$ 。但如果经过一些步骤，动态过程以某种方式接近了 $+1$，并且没有足够的剩余步数来达到 $+10$，那么更好的策略将是瞄准 $+1$……
+
+    \item 这一现象导致了\textbf{时间依赖的动态过程 (time dependent dynamics)}
+    \[
+        s_{t+1} \sim P^{(t)}_{s_t, a_t}
+    \]
+    这意味着转移分布 $P^{(t)}_{s_t, a_t}$ 随时间变化。关于 $R^{(t)}$ 也是一样。请注意，这种设置更好地模拟了现实生活。例如在汽车驾驶时，油箱会变空，交通状况会变化等等。综上，对有限时间范围 MDP 使用以下一般表述
+    \[
+        (\mathcal{S}, \mathcal{A}, P^{(t)}_{sa}, T, R^{(t)})
+    \]
+
+    \begin{remark*}
+        注意上式等价于将时间加入到状态中。
+    \end{remark*}
+
+    在时间 $t$ 处，策略 $\pi$ 的价值函数定义方式与之前相同，即从状态 $s$ 开始，遵循策略 $\pi$ 生成的轨迹的期望：
+    \[
+        V_t(s) = \mathbb{E}[R^{(t)}(s_t, a_t) + \cdots + R^{(T)}(s_T, a_T) | s_t = s, \pi]
+    \]
+\end{enumerate}
+
+现在，问题是
+
+\[
+    \textit{如何在有限时间范围设置下找到最优价值函数}
+\]
+\[
+    V_t^*(s) = \max_{\pi} V_t^{\pi}(s)
+\]
+
+事实上，贝尔曼方程的价值迭代是为了\textbf{动态规划 (Dynamic Programming)} 而设计的。这不足为奇，因为贝尔曼是动态规划的创始人之一，而贝尔曼方程与该领域密切相关。为了理解如何通过采用基于迭代的方法来简化问题，有如下观察：
+
+\begin{enumerate}
+    \item 注意，在博弈结束时（对于时间步 $T$），最优值是显而易见的
+    \begin{equation} \label{eq:16.1}
+        \forall s \in \mathcal{S}: \ V_T^*(s) := \max_{a \in \mathcal{A}} R^{(T)}(s, a)
+    \end{equation}
+    \item 对于另一个时间步 $0 \leq t < T$，如果假设已知下一个时间步 $V_{t+1}^*$ 的最优价值函数，那么就有
+    \begin{equation} \label{eq:16.2}
+        \forall t < T, s \in \mathcal{S}: \ V_t^*(s) := \max_{a \in \mathcal{A}} \left[ R^{(t)}(s, a) + \mathbb{E}_{s' \sim P_{sa}^{(t)}} [V_{t+1}^*(s')] \right]
+    \end{equation}
+\end{enumerate}
+
+考虑上述结果，可以提出一个巧妙的算法来解决最优价值函数：
+
+\begin{enumerate}
+    \item 使用公式 \eqref{eq:16.1} 计算 $V_T^*$。
+    \item 对于 $t = T-1, \dots, 0$:
+    \begin{itemize}
+        \item[] 使用 $V_{t+1}^*$ 和公式 \eqref{eq:16.2} 计算 $V_t^*$。
+    \end{itemize}
+\end{enumerate}
+
+\begin{sidenote*}
+    可以将标准价值迭代视作这种一般情况的特例（即不将时间视为状态的一部分）。结果表明，在标准设置中，如果运行价值迭代 $T$ 步，将得到最优价值迭代的 $\gamma^T$ 近似（几何收敛）。下面结果的证明请参见习题集 4：
+\end{sidenote*}
+
+\begin{theorem*}
+    设 $B$ 是贝尔曼更新算子，然后记 $\|f(x)\|_\infty := \sup_x |f(x)|$。令 $V_t$ 表示第 $t$ 步的价值函数。则
+    \begin{align*}
+        \|V_{t+1} - V^*\|_\infty 
+        &= \|B(V_{t}) - V^*\|_\infty\\
+        &\le \gamma \|V_{t} - V^*\|_\infty\\
+        &\le \gamma^t \|V_1 - V^*\|_\infty
+    \end{align*}
+    所以贝尔曼更新算子 $B$ 是一个 $\gamma$-收缩算子。
+\end{theorem*}
+
+
+\section{线性二次调节器 (LQR)}
+
+本节将讨论第 \ref{sec:16.1} 节所述的有限时间范围设定中的一个特例，其\textbf{精确解 (exact solution)} 是可（容易）处理的。该模型在机器人中被广泛使用。
+
+首先，描述该模型的假设。考虑状态和动作是连续的情况，其中
+\[
+    \mathcal{S} = \mathbb{R}^d, \mathcal{A} = \mathbb{R}^d
+\]
+并且假设\textbf{线性转移 (linear transitions)}（带噪声）
+\[
+    s_{t+1} = A_t s_t + B_t a_t + w_t
+\]
+其中 $A_t \in \mathbb{R}^{d \times d}$, $B_t \in \mathbb{R}^{d \times d}$ 是矩阵，$w_t \sim \mathcal{N}(0, \Sigma_t)$ 是某种高斯噪声（均值为\textbf{零 (zero)}）。正如后文所示，只要噪声具有零均值，它就不会影响最优策略！
+
+还假设模型具有\textbf{二次奖励 (quadratic rewards)}
+\[
+    R^{(t)}(s_t, a_t) = -s_t^\top U_t s_t - a_t^\top W_t a_t
+\]
+其中 $U_t \in \mathbb{R}^{d \times n}$, $W_t \in \mathbb{R}^{d \times d}$ 是正定矩阵（意味着奖励总是\textbf{负 (negative)}的）。
+
+\begin{remark*}
+    请注意，奖励的二次性等价于希望状态接近原点（以获得较高奖励）。例如，如果 $U_t = I_d$（单位矩阵）和 $W_t = I_d$，则 $R_t = -\|s_t\|^2 - \|a_t\|^2$，这意味着希望采取平滑的动作（$a_t$ 的范数小）以回到原点（$s_t$ 的范数小）。这可以模拟一辆汽车试图保持在车道中间而不进行冲动性移动……
+\end{remark*}
+
+定义了 LQR 模型的假设之后，接下来介绍 LQR 算法的 2 个步骤。
+
+\begin{enumerate}[label=\textbf{步骤 \arabic*}]
+    \item 假设不知道矩阵 $A, B, \Sigma$。为了估计它们，可以借鉴强化学习一章中价值逼近部分的思想。首先，从任意策略中收集转移。然后，使用线性回归来找到 $\arg\min_{A,B} \sum_{i=1}^n \sum_{t=0}^{T-1} \left|s_{t+1}^{(i)} - \left(A s_t^{(i)} + B a_t^{(i)}\right)\right|^2$。最后，使用高斯判别分析一节中学到的技术来学习 $\Sigma$。
+    \item 假设模型参数已知（给定或通过步骤 1 估计），可以使用动态规划推导出最优策略。
+    
+    换句话说，给定
+    \[\begin{cases}
+        s_{t+1} &= A_t s_t + B_t a_t + w_t \quad A_t, B_t, U_t, W_t, \Sigma_t \ \text{已知}\\
+        R^{(t)}(s_t, a_t) &= -s_t^\top U_t s_t - a_t^\top W_t a_t
+    \end{cases}\]
+    计算 $V_t^*$。根据第 \ref{sec:16.1} 节，可以应用动态规划，得到
+    \begin{enumerate}[label=\arabic*.]
+        \item \textbf{初始化}
+        
+        对于最后一个时间步 $T$，
+        \begin{align*}
+            V_T^*(s_T)
+            &= \max_{a_T \in \mathcal{A}} R_T(s_T, a_T) \\
+            &= \max_{a_T \in \mathcal{A}} -s_T^\top U_T s_T - a_T^\top W_T a_T\\
+            &= -s_T^\top U_T s_T \quad \text{（最大化时 $a_T=0$）}
+        \end{align*}
+            
+        \item \textbf{迭代步骤}
+        
+        令 $t < T$。假设已知 $V_{t+1}^*$。
+
+        \underline{事实 1:} 可以证明，如果 $V_{t+1}^*$ 是 $s_t$ 的二次函数，则 $V_t^*$ 也是二次函数。换句话说，存在某个矩阵 $\Phi$ 和某个标量 $\Psi$ 使得下式成立
+        \begin{align*}
+            &\text{如果}\  V_{t+1}^*(s_{t+1}) = s_{t+1}^\top \Phi_{t+1} s_{t+1} + \Psi_{t+1} \\
+            &\text{则}\  V_t^*(s_t) = s_t^\top \Phi_t s_t + \Psi_t
+        \end{align*}
+
+        对于时间步 $t=T$，有 $\Phi_T = -U_T$ 且 $\Psi_T = 0$。
+
+        \underline{事实 2:} 可以证明，最优策略是状态的线性函数。
+        已知 $V_{t+1}^*$ 等价于已知 $\Phi_{t+1}$ 和 $\Psi_{t+1}$，因此只需要解释如何从 $\Phi_{t+1}$ 和 $\Psi_{t+1}$ 以及问题的其他参数计算 $\Phi_t$ 和 $\Psi_t$。
+        \begin{align*}
+            V_t^*(s_t) 
+            &= s_t^\top \Phi_t s_t + \Psi_t \\
+            &= \max_{a_t} \left[ R^{(t)}(s_t, a_t) + \mathbb{E}_{s_{t+1} \sim P_{s_t, a_t}^{(t)}}[V_{t+1}^*(s_{t+1})] \right] \\
+            &= \max_{a_t} \left[ -s_t^\top U_t s_t - a_t^\top V_t a_t + \mathbb{E}_{s_{t+1} \sim \mathcal{N}(A_t s_t + B_t a_t, \Sigma_t)}[s_{t+1}^\top \Phi_{t+1} s_{t+1} + \Psi_{t+1}] \right]
+        \end{align*}
+        其中第二行是最优值函数的定义，第三行是通过将模型动态过程以及二次假设代入得到的。注意到最后一个表达式是 $a_t$ 的二次函数，因此可以（容易地）优化。\footnote{对 $a_t$ 求导并令导数等于零。} 得到最优动作 $a_t^*$
+        \begin{align*}
+            a_t^* &= \left[ (B_t^\top \Phi_{t+1} B_t - W_t)^{-1} B_t^\top \Phi_{t+1} A_t \right] \cdot s_t \\
+            &= L_t \cdot s_t
+        \end{align*}
+        其中
+        \[
+            L_t := [(B_t^\top \Phi_{t+1} B_t - W_t)^{-1} B_t^\top \Phi_{t+1} A_t]
+        \]
+
+        这是一个令人印象深刻的结果：最优策略对 $s_t$ 是\textbf{线性 (linear)}的。给定 $a_t^*$，可以求解 $\Phi_t$ 和 $\Psi_t$。最终得到\textbf{离散里卡蒂方程 (Discrete Ricatti equations)}
+        \begin{align*}
+            &\Phi_t = A_t^\top \left( \Phi_{t+1} - \Phi_{t+1} B_t (B_t^\top \Phi_{t+1} B_t - W_t)^{-1} B_t^\top \Phi_{t+1} \right) A_t - U_t \\
+            &\Psi_t = -\text{tr}(\Sigma_t \Phi_{t+1}) + \Psi_{t+1}
+        \end{align*}
+
+        \underline{事实 3:} \label{fact:3} 注意到 $\Phi_t$ 既不依赖于 $\Psi$ 也不依赖于噪声 $\Sigma_t$！由于 $L_t$ 是 $A_t, B_t$ 和 $\Phi_{t+1}$ 的函数，这意味着最优策略也\textbf{不依赖于噪声 (does not depend on the noise)}！（但是 $\Psi_t$ 确实依赖于 $\Sigma_t$，这意味着 $V_t^*$ 依赖于 $\Sigma_t$。）
+    \end{enumerate}
+\end{enumerate}
+
+总结一下，LQR 算法的工作方式如下：
+\begin{enumerate}
+    \item （如果需要）估计参数 $A_t, B_t, \Sigma_t$。
+    \item 初始化 $\Phi_T := -U_T$ 和 $\Psi_T := 0$。
+    \item 迭代更新 $t = T-1 \dots 0$ 时的 $\Phi_t$ 和 $\Psi_t$，使用离散里卡蒂方程。如果存在使状态趋于零的策略，则收敛性得到保证！
+\end{enumerate}
+
+利用\underline{事实 3}，可以更巧妙地使算法运行得（稍微）快一些！由于最优策略不依赖于 $\Psi_t$，并且 $\Phi_t$ 的更新仅依赖于 $\Phi_t$，因此仅更新 $\Phi_t$ 就足够了！
+
+\section{从非线性动态过程到 LQR}
+
+事实证明，就算动态过程是非线性的，许多问题也可以归结为 LQR。虽然 LQR 是一个很好的公式，因为可以得到一个精确的解析解，但它远非通用。以倒立摆为例，状态之间的转换如下：
+
+\[
+    \begin{pmatrix}
+        x_{t+1} \\
+        \dot{x}_{t+1} \\
+        \theta_{t+1} \\
+        \dot{\theta}_{t+1}
+    \end{pmatrix}
+    = F \left(
+    \begin{pmatrix}
+        x_t \\
+        \dot{x}_t \\
+        \theta_t \\
+        \dot{\theta}_t
+    \end{pmatrix}, a_t \right)
+\]
+其中函数 $F$ 取决于角度的余弦等。现在，一个问题是：
+\[
+    \textit{能把这个系统线性化吗？}
+\]
+
+\subsection{动态过程的线性化}
+
+假设在时间 $t$，系统大部分时间处于状态 $\bar{s}_t$，并且所执行的动作在 $\bar{a}_t$ 附近。对于倒立摆，如果达到了某种最优状态，这意味着：动作很小，且与垂直方向偏离不大。
+
+使用泰勒展开来使动态过程线性化。在状态是一维且转移函数 $F$ 不依赖于动作的简单情况下，可以写成：
+\[
+    s_{t+1} = F(s_t) \approx F(\bar{s}_t) + F'(\bar{s}_t) \cdot (s_t - \bar{s}_t)
+\]
+
+更一般的情况用梯度代替了简单的导数：
+\begin{equation} \label{eq:16.3}
+    s_{t+1} \approx F(\bar{s}_t, \bar{a}_t) + \nabla_s F(\bar{s}_t, \bar{a}_t) \cdot (s_t - \bar{s}_t) + \nabla_a F(\bar{s}_t, \bar{a}_t) \cdot (a_t - \bar{a}_t)
+\end{equation}
+现在，$s_{t+1}$ 对 $s_t$ 和 $a_t$ 是线性的，因为可以将方程\eqref{eq:16.3}重写为
+\[
+    s_{t+1} \approx A s_t + B s_t + \kappa
+\]
+其中 $\kappa$ 是某个常数，$A, B$ 是矩阵。这种写法与 LQR 的假设非常相似，只需要消除常数项 $\kappa$！结果表明，可以通过人为地增加一个维度，将常数项吸收到 $s_t$ 中。这与在课程开始时用于线性回归的技巧相同...
+
+\subsection{微分动态规划 (DDP)}
+
+之前的方法适用于目标是保持在某个状态 $s^*$ 附近的情况（例如倒立摆，或者汽车需要保持在车道中间）。然而，某些情况下，目标可能更复杂。
+
+下面介绍一种方法，其适用于系统需要遵循某个轨迹的情况（例如火箭）。该方法将把轨迹离散化为离散时间步，并创建中间目标，然后就可以使用之前介绍的技术！这种方法称为\textbf{微分动态规划 (Differential Dynamic Programming)}。主要步骤是：
+
+\begin{enumerate}[label=\textbf{步骤 \arabic*}]
+    \item 用朴素的控制器生成一个标称轨迹，该轨迹近似于需要遵循的轨迹。换句话说，控制器能够通过以下方式近似最优轨迹：
+    \[
+        s^*_0, a^*_0 \rightarrow s^*_1, a^*_1 \rightarrow \cdots
+    \]
+
+    \item 在每个轨迹点 $s^*_t$ 附近进行线性化，即
+    \[
+        s_{t+1} \approx F(s^*_t, a^*_t) + \nabla_s F(s^*_t, a^*_t) \cdot (s_t - s^*_t) + \nabla_a F(s^*_t, a^*_t) \cdot (a_t - a^*_t)
+    \]
+    其中 $s_t, a_t$ 是当前状态和动作。现在，对这些点进行线性近似后，用上一节的方法并重写作：
+    \[
+        s_{t+1} = A_t \cdot s_t + B_t \cdot a_t
+    \]
+    （注意，在这种情况下，使用了开头提到的非平稳动态过程设置）
+
+    \textbf{注意}，可以对奖励 $R^{(t)}$ 作类似推导，使用二阶泰勒展开：
+    \begin{align*}
+        R(s_t, a_t) \approx 
+        & R(s_t^*, a_t^*) + \nabla_s R(s_t^*, a_t^*)(s_t - s_t^*) + \nabla_a R(s_t^*, a_t^*)(a_t - a_t^*) \\
+        & + \frac{1}{2}(s_t - s_t^*)^\top H_{ss}(s_t - s_t^*) + (s_t - s_t^*)^\top H_{sa}(a_t - a_t^*) \\
+        & + \frac{1}{2}(a_t - a_t^*)^\top H_{aa}(a_t - a_t^*)
+    \end{align*}
+    其中 $H_{xy}$ 表示 $R$ 对 $x$ 和 $y$ 在 $(s_t^*, a_t^*)$ 处求值的 Hessian 矩阵的元素。这个表达式可以改写为：
+    \[
+        R_t(s_t, a_t) = -s_t^\top U_t s_t - a_t^\top W_t a_t
+    \]
+    对矩阵 $U_t, W_t$ 也用了添加额外维度的方法。为了完成推导，请注意：
+    \[
+        \begin{pmatrix} 1 x \end{pmatrix}
+         \cdot 
+        \begin{pmatrix} a b \\ b c \end{pmatrix} 
+         \cdot 
+        \begin{pmatrix} 1 \\ x \end{pmatrix}
+        = a + 2bx + cx^2
+    \]
+
+    \item 现在，可以确信问题已经\textbf{严格地 (strictly)} 在 LQR 框架下重写。下面使用 LQR 寻找最优策略 $\pi_t$。因此，新的控制器（有望）表现更好！
+
+    \textbf{注意}，如果 LQR 轨迹与轨迹的线性化近似偏离过大，可能会出现一些问题，但这可以通过奖励整形来解决。
+
+    \item 得到新的控制器（新的策略 $\pi_t$）后，使用它来生成新的轨迹：
+    \[
+        s_0^*, \pi_0(s_0^*) \to s_1^*, \pi_1(s_1^*) \to \dots \to s_T^*
+    \]
+    请注意，生成这个新轨迹时，使用真实的 $F$ 而不是其线性近似来计算状态转移，这意味着：
+    \[
+        s_{t+1}^* = F(s_t^*, a_t^*)
+    \]
+    然后，返回步骤 2 并重复，直到满足某个停止条件。
+\end{enumerate}
+
+\section{线性二次高斯 (LQG)}
+
+在实际应用中，通常无法得到完整的状态 $s_t$。例如，自动驾驶汽车可能从摄像头接收图像，这仅仅是一个\textbf{观测 (observation)}，而非世界的完整状态。到目前为止都假设状态是可得到的。这对于大多数实际问题可能不成立，因此需要一种新的工具来建模这种情况：\textbf{部分可观测马尔可夫决策过程 (Partially Observable MDPs, POMDP)}。
+
+POMDP 是一种带有额外观测层的 MDP。换句话说，引入了一个新的变量 $o_t$，它遵循给定当前状态 $s_t$ 的某种条件分布：
+\[
+    o_t|s_t \sim O(o|s)
+\]
+
+形式上，有限时间范围的 POMDP 由一个元组定义：
+\[
+    (\mathcal{S}, \mathcal{O}, \mathcal{A}, P_{sa}, T, R)
+\]
+在此框架内，一般策略是基于观测 $o_1, \dots, o_t$ 维护一个\textbf{信念状态 (belief state)}（状态上的分布）。然后，POMDP 中的策略将这些信念状态映射到动作。
+
+在本节中，将 LQR 扩展到这种新设置。假设观测到 $y_t \in \mathbb{R}^n$，其中 $m < n$，且满足：
+\[
+    \begin{cases}
+        y_t = C \cdot s_t + v_t \\
+        s_{t+1} = A \cdot s_t + B \cdot a_t + w_t
+    \end{cases}
+\]
+其中 $C \in \mathbb{R}^{n \times d}$ 是一个压缩矩阵，$v_t$ 是高斯传感器噪声（与 $w_t$ 类似）。请注意，奖励函数 $R^{(t)}$ 保持不变，它是一个关于状态（而非观测）和动作的函数。此外，由于分布是高斯的，信念状态也将是高斯的。下面将概述在这个新框架下，用于寻找最优策略的策略：
+
+\begin{enumerate}[label=\textbf{步骤 \arabic*}]
+    \item 首先，根据已有的观测值计算可能状态（信念状态）的分布。换句话说，需要计算 $s_{t|t}$ 的均值和协方差 $\Sigma_{t|t}$：
+    \[
+        s_t|y_1, \dots, y_t \sim \mathcal{N}(s_{t|t}, \Sigma_{t|t})
+    \]
+    为了高效地执行跨时间的计算，将使用\textbf{卡尔曼滤波 (Kalman Filter)} 算法（阿波罗登月舱上使用的算法！）。
+
+    \item 有了分布之后，使用均值 $s_{t|t}$ 作为 $s_t$ 的最优近似。
+    \item 然后令动作 $a_t := L_t s_{t|t}$，其中 $L_t$ 来自常规 LQR 算法。
+\end{enumerate}
+
+为了直观地理解其工作原理，请注意 $s_{t|t}$ 是 $s_t$ 的带噪声近似（相当于在 LQR 中添加更多噪声），但已证明 LQR 不受噪声影响！
+
+步骤 1 需要详细说明。将介绍一个简单的例子，其中动态过程中没有动作依赖（但一般情况遵循相同的思想）。假设：
+\[
+    \begin{cases}
+        s_{t+1} = A \cdot s_t + w_t, \quad w_t \sim \mathcal{N}(0, \Sigma_s) \\
+        y_t = C \cdot s_t + v_t, \quad v_t \sim \mathcal{N}(0, \Sigma_y)
+    \end{cases}
+\]
+
+由于噪声是高斯分布，可以很容易证明联合分布也是高斯分布。
+\[
+    \begin{pmatrix}
+        s_1 \\
+        \vdots \\
+        s_t \\
+        y_1 \\
+        \vdots \\
+        y_t
+    \end{pmatrix}
+    \sim \mathcal{N}(\mu, \Sigma) \quad \text{对于某些 } \mu, \Sigma
+\]
+
+然后，使用高斯分布的边缘分布公式（参见因子分析），可以得到：
+\[
+    s_t|y_1, \dots, y_t \sim \mathcal{N}(s_{t|t}, \Sigma_{t|t})
+\]
+
+然而，使用这些公式计算边缘分布参数的计算成本会非常高昂！它需要操作形状为 $t \times t$ 的矩阵。回想一下，矩阵求逆的计算复杂度为 $O(t^3)$，并且必须在每个时间步重复执行，导致总成本为 $O(t^4)$！
+
+\textbf{卡尔曼滤波 (Kalman filter)} 算法提供了一种更好的方法，可以在对 $t$ 的\textbf{常数时间 (constant time)} 内更新均值和方差！卡尔曼滤波器有两个基本步骤。假设已知 $s_t|y_1, \dots, y_t$ 的分布：
+\begin{itemize}
+    \item[] \textbf{预测步骤 (predict step)}：计算 $s_{t+1}|y_1, \dots, y_t$
+    \item[] \textbf{更新步骤 (update step)}：计算 $s_{t+1}|y_1, \dots, y_{t+1}$
+\end{itemize}
+迭代执行这些时间步！预测和更新步骤的组合更新了信念状态。换句话说，该过程如下所示：
+\[
+    (s_t|y_1, \dots, y_t) \xrightarrow{\text{预测}} (s_{t+1}|y_1, \dots, y_t) \xrightarrow{\text{更新}} (s_{t+1}|y_1, \dots, y_{t+1}) \xrightarrow{\text{预测}} \dots
+\]
+
+\noindent\textbf{预测步骤:} 假设已知分布如下：
+\[
+    s_t|y_1, \dots, y_t \sim \mathcal{N}(s_{t|t}, \Sigma_{t|t})
+\]
+那么，关于下一个状态的分布也是高斯分布：
+\[
+    s_{t+1}|y_1, \dots, y_t \sim \mathcal{N}(s_{t+1|t}, \Sigma_{t+1|t})
+\]
+其中：
+\[
+    \begin{cases}
+        s_{t+1|t} = A \cdot s_{t|t} \\
+        \Sigma_{t+1|t} = A \cdot \Sigma_{t|t} \cdot A^T + \Sigma_s
+    \end{cases}
+\]
+
+\noindent\textbf{更新步骤:} 给定 $s_{t+1|t}$ 和 $\Sigma_{t+1|t}$，使得
+\[
+    s_{t+1}|y_1, \dots, y_t \sim \mathcal{N}(s_{t+1|t}, \Sigma_{t+1|t})
+\]
+可以证明
+\[
+    s_{t+1}|y_1, \dots, y_{t+1} \sim \mathcal{N}(s_{t+1|t+1}, \Sigma_{t+1|t+1})
+\]
+其中
+\[
+    \begin{cases}
+        s_{t+1|t+1} = s_{t+1|t} + K_t(y_{t+1} - C s_{t+1|t}) \\
+        \Sigma_{t+1|t+1} = \Sigma_{t+1|t} - K_t \cdot C \cdot \Sigma_{t+1|t}
+    \end{cases}
+\]
+且
+\[
+    K_t := \Sigma_{t+1|t} C^T (C \Sigma_{t+1|t} C^T + \Sigma_y)^{-1}
+\]
+矩阵 $K_t$ 称为\textbf{卡尔曼增益 (Kalman gain)}。
+
+现在，如果仔细观察这些公式，会发现不需要时间步 $t$ 之前的观测值！更新步骤仅依赖于先前的分布。综合来看，该算法首先运行一个前向过程来计算 $K_t$、$\Sigma_{t|t}$ 和 $s_{t|t}$（在文献中有时被称为 $\hat{s}$）。然后，它运行一个后向过程（LQR 更新）来计算量 $\Psi_t$、$\Phi_t$ 和 $L_t$。最后，通过 $a_t^* = L_t s_{t|t}$ 得出最优策略。
