@@ -6,7 +6,7 @@
 \usepackage{subfig}
 \usepackage{color}
 \usepackage{hyperref}
-\usepackage[bottom=1in]{geometry}
+\usepackage[top=1.5in,bottom=1.2in]{geometry}
 \usepackage{tikz}
 \usetikzlibrary{arrows, positioning}
 \usepackage[ruled,linesnumbered,noend]{algorithm2e}
@@ -67,6 +67,7 @@
 \date{由 \href{https://github.com/Na-moe/CS229_CN}{Namoe} 翻译\\June 2025}
 
 \addbibresource{ref.bib}
+\input{bibstyle.tex}
 
 \begin{document}
 
@@ -86,8 +87,9 @@
 \include{part4_unsupervised_learning/part4_unsupervised_learning}
 \include{part5_reinforcement_learning_and_control/part5_reinforcement_learning_and_control}
 
-\renewcommand*{\bibfont}{\large}
+\renewcommand*{\bibfont}{\fontsize{13pt}{13pt}\selectfont}
 \setlength{\bibhang}{1em}
+\setlength\bibitemsep{-0.25\baselineskip}
 \printbibliography
 
 \end{document}
